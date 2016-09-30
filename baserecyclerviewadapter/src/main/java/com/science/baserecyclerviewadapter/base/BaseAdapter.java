@@ -37,6 +37,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     private boolean isAutoLoadMore = true; // 是否自动加载，即当数据不满一屏幕会自动加载
     private boolean isDataEmpty = true; // 数据是否为空
     private boolean isLoadMore = true; // 是否加载更多
+    private int currentPage = 0;
 
     public abstract int getItemLayoutId(); // 设置普通Item布局
 
@@ -203,6 +204,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                     if (!isDataEmpty && !isAutoLoadMore &&
                             findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
                         scrollLoadMore();
+                        isLoadMore = false; // 在一次数据加载没有完成时，不能再次加载（因为此回调方法会因SCROLL_STATE_IDLE多次执行）
                     }
                 }
             }
@@ -214,6 +216,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                 if (!isDataEmpty && isAutoLoadMore &&
                         findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
                     scrollLoadMore();
+                    isAutoLoadMore = false;
                 } else if (!isDataEmpty && isAutoLoadMore) {
                     isAutoLoadMore = false;
                 }
@@ -227,7 +230,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     private void scrollLoadMore() {
         if (isLoadMore) {
             if (mOnLoadMoreListener != null) {
-                mOnLoadMoreListener.onLoadMore();
+                currentPage++;
+                mOnLoadMoreListener.onLoadMore(currentPage);
             }
         }
     }
@@ -267,6 +271,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         int size = mDatas.size();
         mDatas.addAll(datas);
         notifyItemInserted(size);
+        isLoadMore = true; // 在一次的数据加载完成后，才可以再次加载
     }
 
     /**
@@ -280,6 +285,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             mDatas.addAll(datas);
             notifyDataSetChanged();
             isDataEmpty = false;
+            currentPage++;
         }
     }
 

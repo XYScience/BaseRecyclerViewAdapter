@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.science.baserecyclerviewadapter.base.BaseAdapter;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         });
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
-            public void onLoadMore() {
+            public void onLoadMore(int currentPage) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         adapter.setLoadMoreData(list);
                     }
-                }, 3000);
+                }, 2000);
             }
         });
         recyclerView.setAdapter(adapter);

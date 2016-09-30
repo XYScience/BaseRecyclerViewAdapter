@@ -9,5 +9,9 @@ package com.science.baserecyclerviewadapter.interfaces;
 
 public interface OnLoadMoreListener {
 
-    void onLoadMore();
+    /**
+     * 加载更多
+     * @param currentPage 当前加载的页数
+     */
+    void onLoadMore(int currentPage);
 }
