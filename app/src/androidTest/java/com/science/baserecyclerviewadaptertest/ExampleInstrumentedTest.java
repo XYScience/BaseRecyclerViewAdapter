@@ -1,4 +1,4 @@
-package com.science.baserecyclerviewadapter;
+package com.science.baserecyclerviewadaptertest;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

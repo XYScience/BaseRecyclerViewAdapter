@@ -1,4 +1,4 @@
-package com.science.baserecyclerviewadapter;
+package com.science.baserecyclerviewadaptertest;
 
 import org.junit.Test;
 
