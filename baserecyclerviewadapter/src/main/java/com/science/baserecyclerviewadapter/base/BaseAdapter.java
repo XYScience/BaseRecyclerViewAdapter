@@ -285,7 +285,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             mDatas.addAll(datas);
             notifyDataSetChanged();
             isDataEmpty = false;
-            currentPage++;
+            currentPage = 1;
         }
     }
 
@@ -381,7 +381,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                         viewProgress.setVisibility(View.VISIBLE);
                         ViewCompat.animate(viewProgress).alpha(1).start();
                         ViewCompat.animate(viewResult).alpha(0).start();
-                        mOnItemClickListener.onItemLoadFailedClick();
+                        scrollLoadMore();
                     }
                 });
             }

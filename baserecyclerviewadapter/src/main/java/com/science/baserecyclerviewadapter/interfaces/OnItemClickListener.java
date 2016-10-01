@@ -23,9 +23,4 @@ public interface OnItemClickListener<T> {
      * 数据为空时，点击继续加载事件
      */
     void onItemEmptyClick();
-
-    /**
-     * 加载失败时，点击继续加载事件
-     */
-    void onItemLoadFailedClick();
 }
