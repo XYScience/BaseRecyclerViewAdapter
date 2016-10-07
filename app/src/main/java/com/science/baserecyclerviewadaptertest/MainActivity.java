@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.science.baserecyclerviewadapter.base.BaseAdapter;
@@ -18,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private boolean isFailed = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,16 +39,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemEmptyClick() {
                 List<String> list = new ArrayList<String>();
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 10; i++) {
                     list.add(i, "item : " + i);
                 }
                 // 首次请求失败后，点击再次请求网络
                 getData(adapter, list);
-            }
-
-            @Override
-            public void onItemLoadFailedClick() {
-
             }
         });
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
@@ -60,7 +56,12 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < 5; i++) {
                             list.add(i, "item : " + (adapter.getItemCount() - 1 + i));
                         }
-                        adapter.setLoadMoreData(list);
+                        if (isFailed) {
+                            isFailed = false;
+                            adapter.showLoadFailed();
+                        } else {
+                            adapter.setLoadMoreData(list);
+                        }
                     }
                 }, 2000);
             }
