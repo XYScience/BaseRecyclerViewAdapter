@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private boolean isFailed = true;
+    private boolean isFailed = true, isFirst = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,50 +39,62 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemEmptyClick() {
                 List<String> list = new ArrayList<String>();
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 5; i++) {
                     list.add(i, "item : " + i);
                 }
                 // 首次请求失败后，点击再次请求网络
-                getData(adapter, list);
+                getData(false, adapter, list);
             }
         });
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(int currentPage) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        List<String> list = new ArrayList<String>();
-                        for (int i = 0; i < 5; i++) {
-                            list.add(i, "item : " + (adapter.getItemCount() - 1 + i));
-                        }
-                        if (isFailed) {
-                            isFailed = false;
-                            adapter.showLoadFailed();
-                        } else {
-                            adapter.setLoadMoreData(list);
-                        }
-                    }
-                }, 2000);
+                List<String> list = new ArrayList<String>();
+                for (int i = 0; i < 5; i++) {
+                    list.add(i, "item : " + (adapter.getItemCount() - 1 + i));
+                }
+                // 加载更多数据
+                getData(true, adapter, list);
             }
         });
         recyclerView.setAdapter(adapter);
 
         // 模拟网络请求数据：首次请求失败
-        getData(adapter, null);
+        getData(false, adapter, null);
     }
 
-    private void getData(final MyAdapter adapter, final List<String> list) {
+    /**
+     * 模拟网络获取数据：1，第一次获取‘新’数据；2，下拉刷新获取‘新’数据；3，上拉加载更多获取数据
+     *
+     * @param isLoadMore
+     * @param adapter
+     * @param list
+     */
+    private void getData(final boolean isLoadMore, final MyAdapter adapter, final List<String> list) {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                // 模拟第一次网络访问失败
                 if (list == null) {
                     adapter.showLoadFailed();
                 } else {
-                    adapter.setNewDatas(list);
+                    if (isFirst) { // 模拟第一次网络访问成功
+                        isFirst = false;
+                        adapter.setData(isLoadMore, list);
+                    } else {
+                        // 模拟加载更多数据失败
+                        if (isFailed) {
+                            isFailed = false;
+                            adapter.showLoadFailed();
+                        }
+                        // 模拟加载更多数据成功
+                        else {
+                            adapter.setData(isLoadMore, list);
+                        }
+                    }
                 }
             }
-        }, 3000);
+        }, 2000);
     }
 
     class MyAdapter extends BaseAdapter<String> {

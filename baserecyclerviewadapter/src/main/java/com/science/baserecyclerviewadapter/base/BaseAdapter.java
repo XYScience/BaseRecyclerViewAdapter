@@ -1,6 +1,7 @@
 package com.science.baserecyclerviewadapter.base;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -120,7 +121,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      *
      * @return
      */
-    public int getFooterViewCount() {
+    private int getFooterViewCount() {
         return mOnLoadMoreListener != null && !mDatas.isEmpty() ? 1 : 0;
     }
 
@@ -252,7 +253,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * @param lastVisiblePositions
      * @return
      */
-    public int findMax(int[] lastVisiblePositions) {
+    private int findMax(int[] lastVisiblePositions) {
         int max = lastVisiblePositions[0];
         for (int value : lastVisiblePositions) {
             if (value > max) {
@@ -263,11 +264,25 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     /**
+     * 设置数据
+     *
+     * @param isLoadMore 是否是新数据
+     * @param data       要设置的数据
+     */
+    public void setData(boolean isLoadMore, List<T> data) {
+        if (isLoadMore) {
+            setLoadMoreData(data);
+        } else {
+            setNewDatas(data);
+        }
+    }
+
+    /**
      * 刷新加载更多的数据
      *
      * @param datas
      */
-    public void setLoadMoreData(List<T> datas) {
+    private void setLoadMoreData(List<T> datas) {
         int size = mDatas.size();
         mDatas.addAll(datas);
         notifyItemInserted(size);
@@ -279,7 +294,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      *
      * @param datas
      */
-    public void setNewDatas(List<T> datas) {
+    private void setNewDatas(List<T> datas) {
         if (datas != null && !datas.isEmpty()) {
             mDatas.clear();
             mDatas.addAll(datas);
@@ -292,7 +307,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     /**
      * 当没有数据时,显示"暂无数据",并关闭加载控件
      */
-    public void showEmptyViewNoData() {
+    private void showEmptyViewNoData(int drawableRes, int stringRes) {
         if (mEmptyView != null) {
             final View viewProgress = mEmptyView.findViewById(R.id.progress);
             ViewCompat.animate(viewProgress).alpha(0).start();
@@ -302,10 +317,14 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                     viewProgress.setVisibility(View.GONE);
                 }
             }, 300);
-            View viewNoData = mEmptyView.findViewById(R.id.tv_no_data);
-            viewNoData.setVisibility(View.VISIBLE);
-            ViewCompat.animate(viewNoData).alpha(1).start();
-            viewNoData.setOnClickListener(new View.OnClickListener() {
+            TextView textNoData = (TextView) mEmptyView.findViewById(R.id.tv_no_data);
+            Drawable drawable = mContext.getResources().getDrawable(drawableRes);
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+            textNoData.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
+            textNoData.setCompoundDrawablePadding(16);
+            textNoData.setText(stringRes);
+            ViewCompat.animate(textNoData).alpha(1).start();
+            mEmptyView.findViewById(R.id.rl_empty).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mOnItemClickListener != null) {
@@ -320,7 +339,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     /**
      * 当无数据并且点击继续记载数据时，显示加载动画，并隐藏“暂无数据”
      */
-    public void showEmptyViewProgress() {
+    private void showEmptyViewProgress() {
         if (mEmptyView != null) {
             View viewProgress = mEmptyView.findViewById(R.id.progress);
             viewProgress.setVisibility(View.VISIBLE);
@@ -339,7 +358,11 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     /**
      * 当数据全部记载完成时，底部显示“无更多数据！”
      */
-    public void showFooterNoData() {
+    public void showFooterNoMoreData() {
+        showFooterNoMoreData(R.string.no_more_data);
+    }
+
+    public void showFooterNoMoreData(int stringRes) {
         if (mFooterView != null) {
             final View viewProgress = mFooterView.findViewById(R.id.progress);
             ViewCompat.animate(viewProgress).alpha(0).start();
@@ -352,7 +375,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             TextView viewResult = (TextView) mFooterView.findViewById(R.id.tv_load_result);
             viewResult.setOnClickListener(null);
             ViewCompat.animate(viewResult).alpha(1).start();
-            viewResult.setText(R.string.no_more_data);
+            viewResult.setText(stringRes);
         }
     }
 
@@ -360,6 +383,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * 当无网络等原因加载失败时
      */
     public void showLoadFailed() {
+        showLoadFailed(R.drawable.empty, R.string.no_data, R.string.load_failed);
+    }
+
+    public void showLoadFailed(int noDataDrawableRes, int noDataStringRes, int loadFailedStringRes) {
         // 有数据，列表footer加载失败
         if (!mDatas.isEmpty()) {
             if (mFooterView != null) {
@@ -373,6 +400,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                     }
                 }, 300);
                 final TextView viewResult = (TextView) mFooterView.findViewById(R.id.tv_load_result);
+                viewResult.setText(loadFailedStringRes);
                 ViewCompat.animate(viewResult).alpha(1).start();
                 viewResult.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -388,7 +416,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         }
         // 无数据，全屏显示暂无数据
         else {
-            showEmptyViewNoData();
+            showEmptyViewNoData(noDataDrawableRes, noDataStringRes);
             isDataEmpty = true;
         }
     }
