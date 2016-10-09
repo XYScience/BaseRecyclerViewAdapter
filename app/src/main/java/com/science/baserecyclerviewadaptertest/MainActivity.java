@@ -112,5 +112,10 @@ public class MainActivity extends AppCompatActivity {
         public void convert(ViewHolder viewHolder, String data) {
             viewHolder.setText(R.id.text, data);
         }
+
+        @Override
+        public void convertSection(ViewHolder viewHolder, String data) {
+            viewHolder.setText(R.id.tv_section, data);
+        }
     }
 }

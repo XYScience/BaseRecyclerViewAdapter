@@ -28,29 +28,43 @@ import java.util.List;
 
 public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    public static final int TYPE_COMMON_ITEM_VIEW = 10001;
-    public static final int TYPE_FOOTER_ITEM_VIEW = 10002;
-    public static final int TYPE_EMPTY_ITEM_VIEW = 10003;
+    public static final int TYPE_COMMON_ITEM_VIEW = 10001; // 普通数据item
+    public static final int TYPE_COMMON_SECTION_ITEM_VIEW = 100011; // 普通数据中的头部item
+    public static final int TYPE_COMMON_FOOTER_ITEM_VIEW = 100012; // 普通数据中的尾部item
+    public static final int TYPE_FOOTER_ITEM_VIEW = 10002; // 整个列表的底部item（显示正在加载or加载结束等）
+    public static final int TYPE_EMPTY_ITEM_VIEW = 10003; // 无任何数据时的item
     private Context mContext;
-    private List<T> mDatas;
+    private List<T> mData;
     private View mEmptyView;
     private View mFooterView;
     private boolean isAutoLoadMore = true; // 是否自动加载，即当数据不满一屏幕会自动加载
     private boolean isDataEmpty = true; // 数据是否为空
     private boolean isLoadMore = true; // 是否加载更多
     private int currentPage = 0;
+    private List<Item<T>> mItems = new ArrayList<>();
+    private OnItemClickListener<T> mOnItemClickListener;
+    private OnLoadMoreListener mOnLoadMoreListener;
+
+    public static class Item<T> {
+
+        int type;
+        T data;
+
+        public Item(int type, T data) {
+            this.type = type;
+            this.data = data;
+        }
+    }
 
     public abstract int getItemLayoutId(); // 设置普通Item布局
 
     public abstract void convert(ViewHolder viewHolder, T data); // 设置普通Item数据
 
-    private OnItemClickListener<T> mOnItemClickListener;
-    private OnLoadMoreListener mOnLoadMoreListener;
-
+    public abstract void convertSection(ViewHolder viewHolder, T data); // 设置普通数据中的头部item数据
 
     public BaseAdapter(Context context) {
         mContext = context;
-        mDatas = new ArrayList<>();
+        mData = new ArrayList<>();
     }
 
     @Override
@@ -59,6 +73,11 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         switch (viewType) {
             case TYPE_COMMON_ITEM_VIEW:
                 viewHolder = ViewHolder.create(mContext, getItemLayoutId(), parent);
+                break;
+            case TYPE_COMMON_SECTION_ITEM_VIEW:
+                viewHolder = ViewHolder.create(mContext, R.layout.item_section, parent);
+                break;
+            case TYPE_COMMON_FOOTER_ITEM_VIEW:
                 break;
             case TYPE_FOOTER_ITEM_VIEW:
                 if (mFooterView == null) {
@@ -82,12 +101,39 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             case TYPE_COMMON_ITEM_VIEW:
                 bindCommonItem(holder, position);
                 break;
+            case TYPE_COMMON_SECTION_ITEM_VIEW:
+                bindSectionItem(holder, position);
+                break;
         }
+    }
+
+    /**
+     * 普通item设置数据
+     *
+     * @param holder
+     * @param position
+     */
+    private void bindCommonItem(RecyclerView.ViewHolder holder, final int position) {
+        final ViewHolder viewHolder = (ViewHolder) holder;
+        convert(viewHolder, mItems.get(position).data);
+        viewHolder.getConvertView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(viewHolder, mData.get(position), position);
+                }
+            }
+        });
+    }
+
+    private void bindSectionItem(RecyclerView.ViewHolder holder, int position) {
+        final ViewHolder viewHolder = (ViewHolder) holder;
+        convertSection(viewHolder, mItems.get(position).data);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mDatas.isEmpty()) {
+        if (mData.isEmpty()) {
             return TYPE_EMPTY_ITEM_VIEW;
         }
         if (isFooterView(position)) {
@@ -98,10 +144,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemCount() {
-        if (mDatas.isEmpty()) {
+        if (mData.isEmpty()) {
             return 1; // 数据为空，则显示“暂时没有数据”
         }
-        return mDatas.size() + getFooterViewCount();
+        return mData.size() + getFooterViewCount();
     }
 
     /**
@@ -122,7 +168,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * @return
      */
     private int getFooterViewCount() {
-        return mOnLoadMoreListener != null && !mDatas.isEmpty() ? 1 : 0;
+        return mOnLoadMoreListener != null && !mData.isEmpty() ? 1 : 0;
     }
 
     /**
@@ -165,25 +211,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             });
         }
         startLoadMore(recyclerView, layoutManager);
-    }
-
-    /**
-     * 普通item设置数据
-     *
-     * @param holder
-     * @param position
-     */
-    private void bindCommonItem(RecyclerView.ViewHolder holder, final int position) {
-        final ViewHolder viewHolder = (ViewHolder) holder;
-        convert(viewHolder, mDatas.get(position));
-        viewHolder.getConvertView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(viewHolder, mDatas.get(position), position);
-                }
-            }
-        });
     }
 
     /**
@@ -285,8 +312,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * @param datas
      */
     private void setLoadMoreData(List<T> datas) {
-        int size = mDatas.size();
-        mDatas.addAll(datas);
+        int size = mData.size();
+        mData.addAll(datas);
         notifyItemInserted(size);
         isLoadMore = true; // 在一次的数据加载完成后，才可以再次加载
     }
@@ -298,8 +325,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      */
     private void setNewDatas(List<T> datas) {
         if (datas != null && !datas.isEmpty()) {
-            mDatas.clear();
-            mDatas.addAll(datas);
+            mData.clear();
+            mData.addAll(datas);
             notifyDataSetChanged();
             isDataEmpty = false;
             currentPage = 1;
@@ -390,7 +417,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public void showLoadFailed(int noDataDrawableRes, int noDataStringRes, int loadFailedStringRes) {
         // 有数据，列表footer加载失败
-        if (!mDatas.isEmpty()) {
+        if (!mData.isEmpty()) {
             if (mFooterView != null) {
                 isLoadMore = false;
                 final View viewProgress = mFooterView.findViewById(R.id.progress);
@@ -424,10 +451,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     public T getItem(int position) {
-        if (mDatas.isEmpty()) {
+        if (mData.isEmpty()) {
             return null;
         }
-        return mDatas.get(position);
+        return mData.get(position);
     }
 
     public void setOnItemClickListener(OnItemClickListener<T> onItemClickListener) {
