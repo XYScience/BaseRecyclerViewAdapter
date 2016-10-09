@@ -205,7 +205,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                     if (!isDataEmpty && !isAutoLoadMore &&
                             findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
                         scrollLoadMore();
-                        isLoadMore = false; // 在一次数据加载没有完成时，不能再次加载（因为此回调方法会因SCROLL_STATE_IDLE多次执行）
+                        // 在一次数据加载没有完成时，不能再次加载（因为此回调方法会因SCROLL_STATE_IDLE人为的多次执行）
+                        isLoadMore = false;
                     }
                 }
             }
@@ -214,12 +215,13 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (!isDataEmpty && isAutoLoadMore &&
-                        findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
-                    scrollLoadMore();
-                    isAutoLoadMore = false;
-                } else if (!isDataEmpty && isAutoLoadMore) {
-                    isAutoLoadMore = false;
+                if (!isDataEmpty && isAutoLoadMore) {
+                    if (findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
+                        scrollLoadMore();
+                        isAutoLoadMore = true;
+                    } else {
+                        isAutoLoadMore = false;
+                    }
                 }
             }
         });
