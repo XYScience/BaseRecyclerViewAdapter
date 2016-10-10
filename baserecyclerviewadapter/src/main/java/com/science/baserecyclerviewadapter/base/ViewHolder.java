@@ -56,11 +56,11 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public ViewHolder setText(int viewId, int textId) {
-        TextView textView = getView(viewId);
-        textView.setText(textId);
-        return this;
-    }
+//    public ViewHolder setText(int viewId, int textId) {
+//        TextView textView = getView(viewId);
+//        textView.setText(textId);
+//        return this;
+//    }
 
     public ViewHolder setImageResource(int viewId, int drawableId) {
         ImageView view = getView(viewId);

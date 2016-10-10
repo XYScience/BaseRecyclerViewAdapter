@@ -31,7 +31,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public static final int TYPE_COMMON_ITEM_VIEW = 10001; // 普通数据item
     public static final int TYPE_COMMON_SECTION_ITEM_VIEW = 100011; // 普通数据中的头部item
-    public static final int TYPE_COMMON_FOOTER_ITEM_VIEW = 100012; // 普通数据中的尾部item
     public static final int TYPE_FOOTER_ITEM_VIEW = 10002; // 整个列表的底部item（显示正在加载or加载结束等）
     public static final int TYPE_EMPTY_ITEM_VIEW = 10003; // 无任何数据时的item
     private Context mContext;
@@ -62,8 +61,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public abstract void convertCommonSection(ViewHolder viewHolder, T data); // 设置普通数据中的头部item数据
 
-    public abstract void convertCommonFooter(ViewHolder viewHolder, T data); // 设置普通数据中的尾部item数据
-
     public BaseAdapter(Context context) {
         mContext = context;
         mDataItems = new ArrayList<>();
@@ -77,9 +74,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                 viewHolder = ViewHolder.create(mContext, getItemLayoutId(), parent);
                 break;
             case TYPE_COMMON_SECTION_ITEM_VIEW:
-                viewHolder = ViewHolder.create(mContext, R.layout.item_section, parent);
-                break;
-            case TYPE_COMMON_FOOTER_ITEM_VIEW:
                 viewHolder = ViewHolder.create(mContext, R.layout.item_section, parent);
                 break;
             case TYPE_FOOTER_ITEM_VIEW:
@@ -106,9 +100,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                 break;
             case TYPE_COMMON_SECTION_ITEM_VIEW:
                 bindCommonSectionItem(holder, position);
-                break;
-            case TYPE_COMMON_FOOTER_ITEM_VIEW:
-                bindCommonFooterItem(holder, position);
                 break;
         }
     }
@@ -139,17 +130,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             @Override
             public void onClick(View v) {
                 Toast.makeText(mContext, "header", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void bindCommonFooterItem(RecyclerView.ViewHolder holder, int position) {
-        final ViewHolder viewHolder = (ViewHolder) holder;
-        convertCommonFooter(viewHolder, mDataItems.get(position).data);
-        viewHolder.getConvertView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(mContext, "footer", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -322,30 +302,27 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * @param data       要设置的数据
      */
     public void setData(boolean isLoadMore, List<T> data) {
+        setData(false, isLoadMore, data);
+    }
+
+    public void setData(boolean isSection, boolean isLoadMore, List<T> data) {
         if (isLoadMore) {
-            setLoadMoreData(data);
+            setLoadMoreData(isSection, data);
         } else {
-            setNewDatas(data);
+            setNewDatas(isSection, data);
         }
-    }
-
-    private void setCommonSectionData() {
-        mDataItems.add(new Item(TYPE_COMMON_SECTION_ITEM_VIEW, "我是头部"));
-        notifyItemInserted(mDataItems.size());
-    }
-
-    private void setCommonFooterData() {
-        mDataItems.add(new Item(TYPE_COMMON_FOOTER_ITEM_VIEW, "我是尾部"));
-        notifyItemInserted(mDataItems.size());
     }
 
     /**
      * 刷新加载更多的数据
      *
+     * @param isSection
      * @param datas
      */
-    private void setLoadMoreData(List<T> datas) {
-        setCommonSectionData();
+    private void setLoadMoreData(boolean isSection, List<T> datas) {
+        if (isSection) {
+            setCommonSectionData(datas);
+        }
         int size = mDataItems.size();
         for (int i = 0; i < datas.size(); i++) {
             mDataItems.add(new Item(TYPE_COMMON_ITEM_VIEW, datas.get(i)));
@@ -354,15 +331,19 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         isLoadMore = true; // 在一次的数据加载完成后，才可以再次加载
     }
 
+
     /**
      * 初次加载、或下拉刷新时，要替换全部旧数据时刷新数据
      *
+     * @param isSection
      * @param datas
      */
-    private void setNewDatas(List<T> datas) {
+    private void setNewDatas(boolean isSection, List<T> datas) {
         if (datas != null && !datas.isEmpty()) {
             mDataItems.clear();
-            setCommonSectionData();
+            if (isSection) {
+                setCommonSectionData(datas);
+            }
             for (int i = 0; i < datas.size(); i++) {
                 mDataItems.add(new Item(TYPE_COMMON_ITEM_VIEW, datas.get(i)));
             }
@@ -370,6 +351,11 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             isDataEmpty = false;
             currentPage = 1;
         }
+    }
+
+    private void setCommonSectionData(List<T> datas) {
+        mDataItems.add(new Item(TYPE_COMMON_SECTION_ITEM_VIEW, datas.get(1)));
+        notifyItemInserted(mDataItems.size());
     }
 
     /**

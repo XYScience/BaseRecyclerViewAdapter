@@ -30,17 +30,17 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         final MyAdapter adapter = new MyAdapter(this);
-        adapter.setOnItemClickListener(new OnItemClickListener<String>() {
+        adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
             @Override
-            public void onItemClick(ViewHolder viewHolder, String data, int position) {
-                Toast.makeText(MainActivity.this, data, Toast.LENGTH_SHORT).show();
+            public void onItemClick(ViewHolder viewHolder, Person data, int position) {
+                Toast.makeText(MainActivity.this, data.getName(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onItemEmptyClick() {
-                List<String> list = new ArrayList<String>();
+                List<Person> list = new ArrayList<Person>();
                 for (int i = 0; i < 5; i++) {
-                    list.add(i, "item : " + i);
+                    list.add(i, new Person("name:" + i, i));
                 }
                 // 首次请求失败后，点击再次请求网络
                 getData(false, adapter, list);
@@ -49,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(int currentPage) {
-                List<String> list = new ArrayList<String>();
+                List<Person> list = new ArrayList<Person>();
                 for (int i = 0; i < 5; i++) {
-                    list.add(i, "item : " + (adapter.getItemCount() - 1 + i));
+                    list.add(i, new Person("name:" + (adapter.getItemCount() - 1 + i), (adapter.getItemCount() - 1 + i)));
                 }
                 // 加载更多数据
                 getData(true, adapter, list);
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
      * @param adapter
      * @param list
      */
-    private void getData(final boolean isLoadMore, final MyAdapter adapter, final List<String> list) {
+    private void getData(final boolean isLoadMore, final MyAdapter adapter, final List<Person> list) {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if (isFirst) { // 模拟第一次网络访问成功
                         isFirst = false;
-                        adapter.setData(isLoadMore, list);
+                        adapter.setData(true, isLoadMore, list);
                     } else {
                         // 模拟加载更多数据失败
                         if (isFailed) {
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         // 模拟加载更多数据成功
                         else {
-                            adapter.setData(isLoadMore, list);
+                            adapter.setData(true, isLoadMore, list);
                         }
                     }
                 }
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         }, 2000);
     }
 
-    class MyAdapter extends BaseAdapter<String> {
+    class MyAdapter extends BaseAdapter<Person> {
 
         public MyAdapter(Context context) {
             super(context);
@@ -109,18 +109,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void convert(ViewHolder viewHolder, String data) {
-            viewHolder.setText(R.id.text, data);
+        public void convert(ViewHolder viewHolder, Person data) {
+            viewHolder.setText(R.id.text, data.getName());
         }
 
         @Override
-        public void convertCommonSection(ViewHolder viewHolder, String data) {
-            viewHolder.setText(R.id.tv_section, data);
-        }
-
-        @Override
-        public void convertCommonFooter(ViewHolder viewHolder, String data) {
-            viewHolder.setText(R.id.tv_section, data);
+        public void convertCommonSection(ViewHolder viewHolder, Person data) {
+            viewHolder.setText(R.id.tv_section, String.valueOf(data.getAge()));
         }
     }
 }
