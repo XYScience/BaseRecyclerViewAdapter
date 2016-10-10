@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.setOnItemClickListener(new OnItemClickListener<String>() {
             @Override
             public void onItemClick(ViewHolder viewHolder, String data, int position) {
-                Toast.makeText(MainActivity.this, "item = " + data, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, data, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -114,7 +114,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void convertSection(ViewHolder viewHolder, String data) {
+        public void convertCommonSection(ViewHolder viewHolder, String data) {
+            viewHolder.setText(R.id.tv_section, data);
+        }
+
+        @Override
+        public void convertCommonFooter(ViewHolder viewHolder, String data) {
             viewHolder.setText(R.id.tv_section, data);
         }
     }
