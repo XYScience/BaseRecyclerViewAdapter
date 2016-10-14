@@ -8,9 +8,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
-import com.science.baserecyclerviewadapter.base.BaseSectionAdapter;
+import com.science.baserecyclerviewadapter.base.BaseStickyAdapter;
 import com.science.baserecyclerviewadapter.base.ViewHolder;
-import com.science.baserecyclerviewadapter.entity.SectionEntity;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
 
@@ -24,7 +23,7 @@ import java.util.List;
  * @data 2016/10/13
  */
 
-public class SectionActivity extends AppCompatActivity {
+public class StickyHeaderActivity extends AppCompatActivity {
 
     private boolean isFailed = true, isFirst = true;
 
@@ -37,22 +36,21 @@ public class SectionActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        final MySectionAdapter adapter = new MySectionAdapter(this);
-        adapter.setOnItemClickListener(new OnItemClickListener<SectionActivity.MySection>() {
+        final StickyAdapter adapter = new StickyAdapter(this);
+        adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
 
             @Override
-            public void onItemClick(ViewHolder viewHolder, SectionActivity.MySection data, int position) {
-                Toast.makeText(SectionActivity.this, data.data.getName(), Toast.LENGTH_SHORT).show();
+            public void onItemClick(ViewHolder viewHolder, Person data, int position) {
+                Toast.makeText(StickyHeaderActivity.this, data.getName(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onItemEmptyClick() {
-                List<SectionActivity.MySection> list = new ArrayList<>();
-                list.add(new SectionActivity.MySection(true, false, new Person("头部", 22)));
+                List<Person> list = new ArrayList<>();
                 for (int i = 0; i < 5; i++) {
-                    list.add(new SectionActivity.MySection(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
+                    list.add(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i));
                 }
-                list.add(new SectionActivity.MySection(false, true, new Person("尾部", 22)));
+                adapter.setData(list);
                 // 首次请求失败后，点击再次请求网络
                 getData(false, adapter, list);
             }
@@ -60,12 +58,11 @@ public class SectionActivity extends AppCompatActivity {
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(int currentPage) {
-                List<SectionActivity.MySection> list = new ArrayList<>();
-                list.add(new SectionActivity.MySection(true, false, new Person("头部", 22)));
+                List<Person> list = new ArrayList<>();
                 for (int i = 0; i < 5; i++) {
-                    list.add(new SectionActivity.MySection(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
+                    list.add(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i));
                 }
-                list.add(new SectionActivity.MySection(false, true, new Person("尾部", 22)));
+                adapter.setData(list);
                 // 加载更多数据
                 getData(true, adapter, list);
             }
@@ -83,8 +80,7 @@ public class SectionActivity extends AppCompatActivity {
      * @param adapter
      * @param list
      */
-    private void getData(final boolean isLoadMore, final MySectionAdapter adapter,
-                         final List<SectionActivity.MySection> list) {
+    private void getData(final boolean isLoadMore, final StickyAdapter adapter, final List<Person> list) {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -111,9 +107,11 @@ public class SectionActivity extends AppCompatActivity {
         }, 2000);
     }
 
-    class MySectionAdapter extends BaseSectionAdapter<SectionActivity.MySection> {
+    class StickyAdapter extends BaseStickyAdapter<Person> {
 
-        public MySectionAdapter(Context context) {
+        private List<Person> list;
+
+        public StickyAdapter(Context context) {
             super(context);
         }
 
@@ -123,42 +121,34 @@ public class SectionActivity extends AppCompatActivity {
         }
 
         @Override
-        public int getItemFooterLayoutId() {
-            return R.layout.item_header;
-        }
-
-        @Override
         public int getItemLayoutId() {
             return R.layout.item_common;
         }
 
         @Override
-        public void convertHeader(ViewHolder viewHolder, SectionActivity.MySection data) {
-            Person person = (Person) data.data;
-            viewHolder.setText(R.id.header, String.valueOf(person.getName()));
+        public void convertHeader(ViewHolder viewHolder, Person data) {
+            viewHolder.setText(R.id.header, data.getName());
         }
 
         @Override
-        public void convertFooter(ViewHolder viewHolder, MySection data) {
-            Person person = (Person) data.data;
-            viewHolder.setText(R.id.header, String.valueOf(person.getName()));
+        public void convert(ViewHolder viewHolder, Person data) {
+            viewHolder.setText(R.id.text, data.getName());
         }
 
         @Override
-        public void convert(ViewHolder viewHolder, SectionActivity.MySection data) {
-            Person person = (Person) data.data;
-            viewHolder.setText(R.id.text, person.getName());
-        }
-    }
-
-    class MySection extends SectionEntity<Person> {
-
-        public MySection(boolean isHeader, boolean isFooter, Person data) {
-            super(isHeader, isFooter, data);
+        public int getSectionCount() {
+            return 3;
         }
 
-        public MySection(Person data) {
-            super(data);
+        @Override
+        public int getCountOfSection(int section) {
+            return list.size();
         }
+
+        @Override
+        public void setData(List<Person> list) {
+            this.list = list;
+        }
+
     }
 }

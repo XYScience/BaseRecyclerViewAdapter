@@ -222,8 +222,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                     if (!isDataEmpty && !isAutoLoadMore &&
                             findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
                         scrollLoadMore();
-                        // 在一次数据加载没有完成时，不能再次加载（因为此回调方法会因SCROLL_STATE_IDLE人为的多次执行）
-                        isLoadMore = false;
                     }
                 }
             }
@@ -252,6 +250,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             if (mOnLoadMoreListener != null) {
                 currentPage++;
                 mOnLoadMoreListener.onLoadMore(currentPage);
+                // 在一次数据加载没有完成时，不能再次加载（因为此回调方法会因SCROLL_STATE_IDLE人为的多次执行）
+                isLoadMore = false;
             }
         }
     }
@@ -301,20 +301,19 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      *
      * @param data
      */
-    private void setLoadMoreData(List<T> data) {
+    protected void setLoadMoreData(List<T> data) {
         int size = mData.size();
         mData.addAll(data);
         notifyItemInserted(size);
         isLoadMore = true; // 在一次的数据加载完成后，才可以再次加载
     }
 
-
     /**
      * 初次加载、或下拉刷新时，要替换全部旧数据时刷新数据
      *
      * @param data
      */
-    private void setNewData(List<T> data) {
+    protected void setNewData(List<T> data) {
         if (data != null && !data.isEmpty()) {
             mData.clear();
             mData.addAll(data);
