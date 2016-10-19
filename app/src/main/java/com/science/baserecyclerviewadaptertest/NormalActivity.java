@@ -31,11 +31,11 @@ public class NormalActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         final MyAdapter adapter = new MyAdapter(this);
-        adapter.setOnItemClickListener(new OnItemClickListener<List<Person>>() {
+        adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
 
             @Override
-            public void onItemClick(ViewHolder viewHolder, List<Person> data, int position) {
-                Toast.makeText(NormalActivity.this, data.get(position).getName(), Toast.LENGTH_SHORT).show();
+            public void onItemClick(ViewHolder viewHolder, Person data, int position) {
+                Toast.makeText(NormalActivity.this, data.getName(), Toast.LENGTH_SHORT).show();
             }
 
             @Override

@@ -29,7 +29,7 @@ public abstract class BaseCommonAdapter<T> extends BaseAdapter {
             @Override
             public void onClicks(View v) {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(viewHolder, dataList, position);
+                    mOnItemClickListener.onItemClick(viewHolder, dataList.get(position), position);
                 }
             }
         });

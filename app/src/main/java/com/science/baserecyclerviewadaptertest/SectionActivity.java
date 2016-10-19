@@ -46,6 +46,16 @@ public class SectionActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onItemSectionHeaderClick(ViewHolder viewHolder, MySection data, int position) {
+                Toast.makeText(SectionActivity.this, data.data.getName(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onItemSectionFooterClick(ViewHolder viewHolder, MySection data, int position) {
+                Toast.makeText(SectionActivity.this, data.data.getName(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
             public void onItemEmptyClick() {
                 List<SectionActivity.MySection> list = new ArrayList<>();
                 list.add(new SectionActivity.MySection(true, false, new Course("头部", 22)));

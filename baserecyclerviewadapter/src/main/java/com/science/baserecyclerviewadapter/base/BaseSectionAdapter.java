@@ -1,9 +1,11 @@
 package com.science.baserecyclerviewadapter.base;
 
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.science.baserecyclerviewadapter.entity.SectionEntity;
+import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
 
 import java.util.List;
 
@@ -62,10 +64,36 @@ public abstract class BaseSectionAdapter<T extends SectionEntity> extends BaseAd
     public void convert(final ViewHolder viewHolder, final List dataList, final int position) {
         if (viewHolder.getItemViewType() == TYPE_COMMON_SECTION_HEADER_ITEM_VIEW) {
             convertHeader(viewHolder, (T) dataList.get(position));
+            viewHolder.getConvertView().setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClicks(View v) {
+                    if (mOnItemClickListener != null) {
+                        mOnItemClickListener.onItemSectionHeaderClick(viewHolder,
+                                (T) dataList.get(position), position);
+                    }
+                }
+            });
         } else if (viewHolder.getItemViewType() == TYPE_COMMON_SECTION_FOOTER_ITEM_VIEW) {
             convertFooter(viewHolder, (T) dataList.get(position));
+            viewHolder.getConvertView().setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClicks(View v) {
+                    if (mOnItemClickListener != null) {
+                        mOnItemClickListener.onItemSectionFooterClick(viewHolder,
+                                (T) dataList.get(position), position);
+                    }
+                }
+            });
         } else if (viewHolder.getItemViewType() == TYPE_COMMON_ITEM_VIEW) {
             convert(viewHolder, (T) dataList.get(position));
+            viewHolder.getConvertView().setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClicks(View v) {
+                    if (mOnItemClickListener != null) {
+                        mOnItemClickListener.onItemClick(viewHolder, (T) dataList.get(position), position);
+                    }
+                }
+            });
         }
     }
 
