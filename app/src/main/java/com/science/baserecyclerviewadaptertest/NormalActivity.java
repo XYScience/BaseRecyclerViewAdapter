@@ -8,13 +8,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
-import com.science.baserecyclerviewadapter.base.BaseAdapter;
+import com.science.baserecyclerviewadapter.base.BaseCommonAdapter;
 import com.science.baserecyclerviewadapter.base.ViewHolder;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class NormalActivity extends AppCompatActivity {
 
@@ -30,18 +31,23 @@ public class NormalActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         final MyAdapter adapter = new MyAdapter(this);
-        adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
+        adapter.setOnItemClickListener(new OnItemClickListener<List<Person>>() {
 
             @Override
-            public void onItemClick(ViewHolder viewHolder, Person data, int position) {
-                Toast.makeText(NormalActivity.this, data.getName(), Toast.LENGTH_SHORT).show();
+            public void onItemClick(ViewHolder viewHolder, List<Person> data, int position) {
+                Toast.makeText(NormalActivity.this, data.get(position).getName(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onItemEmptyClick() {
                 List<Person> list = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
-                    list.add(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i));
+                for (int i = 0; i < 8; i++) {
+                    Random r = new Random();
+                    List<Person.Score> listScore = new ArrayList<>();
+                    for (int j = 0; j < r.nextInt(2) + 1; j++) {
+                        listScore.add(j, new Person.Score("java score:" + (80 + r.nextInt(5))));
+                    }
+                    list.add(new Person("person:" + (adapter.getItemCount() - 1 + i), listScore));
                 }
                 // 首次请求失败后，点击再次请求网络
                 getData(false, adapter, list);
@@ -51,8 +57,13 @@ public class NormalActivity extends AppCompatActivity {
             @Override
             public void onLoadMore(int currentPage) {
                 List<Person> list = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
-                    list.add(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i));
+                for (int i = 0; i < 3; i++) {
+                    Random r = new Random();
+                    List<Person.Score> listScore = new ArrayList<>();
+                    for (int j = 0; j < r.nextInt(2) + 1; j++) {
+                        listScore.add(j, new Person.Score("java score:" + (80 + r.nextInt(5))));
+                    }
+                    list.add(new Person("person:" + (adapter.getItemCount() - 1 + i), listScore));
                 }
                 // 加载更多数据
                 getData(true, adapter, list);
@@ -98,7 +109,7 @@ public class NormalActivity extends AppCompatActivity {
         }, 2000);
     }
 
-    class MyAdapter extends BaseAdapter<Person> {
+    class MyAdapter extends BaseCommonAdapter<List<Person>> {
 
         public MyAdapter(Context context) {
             super(context);
@@ -110,8 +121,8 @@ public class NormalActivity extends AppCompatActivity {
         }
 
         @Override
-        public void convert(ViewHolder viewHolder, Person data, int position) {
-            viewHolder.setText(R.id.text, data.getName());
+        public void convertCommon(ViewHolder viewHolder, List<Person> data, int position) {
+            viewHolder.setText(R.id.text, data.get(position).getName());
         }
     }
 

@@ -48,11 +48,11 @@ public class SectionActivity extends AppCompatActivity {
             @Override
             public void onItemEmptyClick() {
                 List<SectionActivity.MySection> list = new ArrayList<>();
-                list.add(new SectionActivity.MySection(true, false, new Person("头部", 22)));
+                list.add(new SectionActivity.MySection(true, false, new Course("头部", 22)));
                 for (int i = 0; i < 5; i++) {
-                    list.add(new SectionActivity.MySection(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
+                    list.add(new SectionActivity.MySection(new Course("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
                 }
-                list.add(new SectionActivity.MySection(false, true, new Person("尾部", 22)));
+                list.add(new SectionActivity.MySection(false, true, new Course("尾部", 22)));
                 // 首次请求失败后，点击再次请求网络
                 getData(false, adapter, list);
             }
@@ -61,11 +61,11 @@ public class SectionActivity extends AppCompatActivity {
             @Override
             public void onLoadMore(int currentPage) {
                 List<SectionActivity.MySection> list = new ArrayList<>();
-                list.add(new SectionActivity.MySection(true, false, new Person("头部", 22)));
+                list.add(new SectionActivity.MySection(true, false, new Course("头部", 22)));
                 for (int i = 0; i < 5; i++) {
-                    list.add(new SectionActivity.MySection(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
+                    list.add(new SectionActivity.MySection(new Course("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
                 }
-                list.add(new SectionActivity.MySection(false, true, new Person("尾部", 22)));
+                list.add(new SectionActivity.MySection(false, true, new Course("尾部", 22)));
                 // 加载更多数据
                 getData(true, adapter, list);
             }
@@ -134,30 +134,30 @@ public class SectionActivity extends AppCompatActivity {
 
         @Override
         public void convertHeader(ViewHolder viewHolder, SectionActivity.MySection data) {
-            Person person = (Person) data.data;
+            Course person = (Course) data.data;
             viewHolder.setText(R.id.header, String.valueOf(person.getName()));
         }
 
         @Override
         public void convertFooter(ViewHolder viewHolder, MySection data) {
-            Person person = (Person) data.data;
+            Course person = (Course) data.data;
             viewHolder.setText(R.id.header, String.valueOf(person.getName()));
         }
 
         @Override
         public void convert(ViewHolder viewHolder, SectionActivity.MySection data) {
-            Person person = (Person) data.data;
+            Course person = (Course) data.data;
             viewHolder.setText(R.id.text, person.getName());
         }
     }
 
-    class MySection extends SectionEntity<Person> {
+    class MySection extends SectionEntity<Course> {
 
-        public MySection(boolean isHeader, boolean isFooter, Person data) {
+        public MySection(boolean isHeader, boolean isFooter, Course data) {
             super(isHeader, isFooter, data);
         }
 
-        public MySection(Person data) {
+        public MySection(Course data) {
             super(data);
         }
     }

@@ -15,6 +15,7 @@ import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author 幸运Science
@@ -41,16 +42,20 @@ public class StickyHeaderActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(ViewHolder viewHolder, Person data, int position) {
-                Toast.makeText(StickyHeaderActivity.this, data.getName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(StickyHeaderActivity.this, data.getCourse().get(position).getJava(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onItemEmptyClick() {
                 List<Person> list = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
-                    list.add(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i));
+                for (int i = 0; i < 3; i++) {
+                    Random r = new Random();
+                    List<Person.Score> listScore = new ArrayList<>();
+                    for (int j = 0; j < r.nextInt(2) + 1; j++) {
+                        listScore.add(j, new Person.Score("java score:" + (80 + r.nextInt(5))));
+                    }
+                    list.add(new Person("person:" + i, listScore));
                 }
-                adapter.setData(list);
                 // 首次请求失败后，点击再次请求网络
                 getData(false, adapter, list);
             }
@@ -59,10 +64,14 @@ public class StickyHeaderActivity extends AppCompatActivity {
             @Override
             public void onLoadMore(int currentPage) {
                 List<Person> list = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
-                    list.add(new Person("item:" + (adapter.getItemCount() - 1 + i), 20 + i));
+                for (int i = 0; i < 3; i++) {
+                    Random r = new Random();
+                    List<Person.Score> listScore = new ArrayList<>();
+                    for (int j = 0; j < r.nextInt(2) + 1; j++) {
+                        listScore.add(j, new Person.Score("java score:" + (80 + r.nextInt(5))));
+                    }
+                    list.add(new Person("person:" + (adapter.getSectionCount() + i), listScore));
                 }
-                adapter.setData(list);
                 // 加载更多数据
                 getData(true, adapter, list);
             }
@@ -107,9 +116,9 @@ public class StickyHeaderActivity extends AppCompatActivity {
         }, 2000);
     }
 
-    class StickyAdapter extends BaseStickyAdapter<Person> {
+    class StickyAdapter extends BaseStickyAdapter<List<Person>> {
 
-        private List<Person> list;
+        private List<Person> listPerson = new ArrayList<>();
 
         public StickyAdapter(Context context) {
             super(context);
@@ -126,28 +135,33 @@ public class StickyHeaderActivity extends AppCompatActivity {
         }
 
         @Override
-        public void convertHeader(ViewHolder viewHolder, Person data) {
-            viewHolder.setText(R.id.header, data.getName());
+        public void convertCommon(ViewHolder viewHolder, List<Person> data, int section, int position) {
+            viewHolder.setText(R.id.text, data.get(section).getCourse().get(position).getJava());
         }
 
         @Override
-        public void convert(ViewHolder viewHolder, Person data) {
-            viewHolder.setText(R.id.text, data.getName());
+        public void convertHeader(ViewHolder viewHolder, List<Person> data, int section) {
+            viewHolder.setText(R.id.header, data.get(section).getName());
         }
 
         @Override
         public int getSectionCount() {
-            return 3;
+            return listPerson.size();
         }
 
         @Override
         public int getCountOfSection(int section) {
-            return list.size();
+            return listPerson.get(section).getCourse().size();
         }
 
         @Override
-        public void setData(List<Person> list) {
-            this.list = list;
+        public void updateData(boolean isLoadMore, List<Person> list) {
+            if (isLoadMore) {
+                listPerson.addAll(list);
+            } else {
+                listPerson.clear();
+                listPerson.addAll(list);
+            }
         }
 
     }

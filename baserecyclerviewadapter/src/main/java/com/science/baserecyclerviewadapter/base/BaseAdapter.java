@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.science.baserecyclerviewadapter.R;
+import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
 import com.science.baserecyclerviewadapter.util.AdapterUtil;
@@ -44,7 +45,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public abstract int getItemLayoutId(); // 设置普通Item布局
 
-    public abstract void convert(ViewHolder viewHolder, T data, int position); // 设置普通Item数据
+    public abstract void convert(ViewHolder viewHolder, List<T> dataList, int position); // 设置普通Item数据
 
     public BaseAdapter(Context context) {
         mContext = context;
@@ -86,35 +87,16 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
             case TYPE_COMMON_ITEM_VIEW:
-                bindCommonItem(holder, position);
+                convert((ViewHolder) holder, mData, position);
                 break;
             case TYPE_EMPTY_ITEM_VIEW:
                 break;
             case TYPE_FOOTER_ITEM_VIEW:
                 break;
             default:
-                bindCommonItem(holder, position);
+                convert((ViewHolder) holder, mData, position);
                 break;
         }
-    }
-
-    /**
-     * 普通item设置数据
-     *
-     * @param holder
-     * @param position
-     */
-    private void bindCommonItem(RecyclerView.ViewHolder holder, final int position) {
-        final ViewHolder viewHolder = (ViewHolder) holder;
-        convert(viewHolder, mData.get(position), position);
-        viewHolder.getConvertView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(viewHolder, mData.get(position), position);
-                }
-            }
-        });
     }
 
     @Override
@@ -157,7 +139,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      *
      * @return
      */
-    private int getFooterViewCount() {
+    protected int getFooterViewCount() {
         return mOnLoadMoreListener != null && !mData.isEmpty() ? 1 : 0;
     }
 
@@ -301,7 +283,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      *
      * @param data
      */
-    protected void setLoadMoreData(List<T> data) {
+    private void setLoadMoreData(List<T> data) {
         int size = mData.size();
         mData.addAll(data);
         notifyItemInserted(size);
@@ -317,7 +299,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         if (data != null && !data.isEmpty()) {
             mData.clear();
             mData.addAll(data);
-            notifyDataSetChanged();
+            notifyItemChanged(0);
             isDataEmpty = false;
             currentPage = 1;
         }
@@ -336,18 +318,19 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                     viewProgress.setVisibility(View.GONE);
                 }
             }, 300);
-            TextView textNoData = (TextView) mEmptyView.findViewById(R.id.tv_no_data);
+            final TextView textNoData = (TextView) mEmptyView.findViewById(R.id.tv_no_data);
+            textNoData.setVisibility(View.VISIBLE);
             Drawable drawable = mContext.getResources().getDrawable(drawableRes);
             drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
             textNoData.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
             textNoData.setCompoundDrawablePadding(16);
             textNoData.setText(stringRes);
             ViewCompat.animate(textNoData).alpha(1).start();
-            mEmptyView.findViewById(R.id.rl_empty).setOnClickListener(new View.OnClickListener() {
+            mEmptyView.findViewById(R.id.rl_empty).setOnClickListener(new OnClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
-                        showEmptyViewProgress();
+                        showEmptyViewProgress(viewProgress, textNoData);
                         mOnItemClickListener.onItemEmptyClick();
                     }
                 }
@@ -357,18 +340,20 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     /**
      * 当无数据并且点击继续记载数据时，显示加载动画，并隐藏“暂无数据”
+     *
+     * @param viewProgress
+     * @param textNoData
      */
-    private void showEmptyViewProgress() {
+    private void showEmptyViewProgress(final View viewProgress, final TextView textNoData) {
         if (mEmptyView != null) {
-            View viewProgress = mEmptyView.findViewById(R.id.progress);
-            viewProgress.setVisibility(View.VISIBLE);
+            mEmptyView.findViewById(R.id.rl_empty).setOnClickListener(null);
             ViewCompat.animate(viewProgress).alpha(1).start();
-            final View viewNoData = mEmptyView.findViewById(R.id.tv_no_data);
-            ViewCompat.animate(viewNoData).alpha(0).start();
-            viewNoData.postDelayed(new Runnable() {
+            ViewCompat.animate(textNoData).alpha(0).start();
+            textNoData.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    viewNoData.setVisibility(View.GONE);
+                    textNoData.setVisibility(View.GONE);
+                    viewProgress.setVisibility(View.VISIBLE);
                 }
             }, 300);
         }
@@ -420,14 +405,21 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                 }, 300);
                 final TextView viewResult = (TextView) mFooterView.findViewById(R.id.tv_load_result);
                 viewResult.setText(loadFailedStringRes);
+                viewResult.setVisibility(View.VISIBLE);
                 ViewCompat.animate(viewResult).alpha(1).start();
-                viewResult.setOnClickListener(new View.OnClickListener() {
+                viewResult.setOnClickListener(new OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClicks(View v) {
                         isLoadMore = true;
                         viewProgress.setVisibility(View.VISIBLE);
                         ViewCompat.animate(viewProgress).alpha(1).start();
                         ViewCompat.animate(viewResult).alpha(0).start();
+                        viewResult.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                viewResult.setVisibility(View.GONE);
+                            }
+                        }, 300);
                         scrollLoadMore();
                     }
                 });

@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 
 import com.science.baserecyclerviewadapter.entity.SectionEntity;
 
+import java.util.List;
+
 /**
  * @author 幸运Science
  * @description section头部和尾部
@@ -57,13 +59,13 @@ public abstract class BaseSectionAdapter<T extends SectionEntity> extends BaseAd
     }
 
     @Override
-    public void convert(final ViewHolder viewHolder, final Object data, final int position) {
+    public void convert(final ViewHolder viewHolder, final List dataList, final int position) {
         if (viewHolder.getItemViewType() == TYPE_COMMON_SECTION_HEADER_ITEM_VIEW) {
-            convertHeader(viewHolder, (T) data);
+            convertHeader(viewHolder, (T) dataList.get(position));
         } else if (viewHolder.getItemViewType() == TYPE_COMMON_SECTION_FOOTER_ITEM_VIEW) {
-            convertFooter(viewHolder, (T) data);
+            convertFooter(viewHolder, (T) dataList.get(position));
         } else if (viewHolder.getItemViewType() == TYPE_COMMON_ITEM_VIEW) {
-            convert(viewHolder, (T) data);
+            convert(viewHolder, (T) dataList.get(position));
         }
     }
 

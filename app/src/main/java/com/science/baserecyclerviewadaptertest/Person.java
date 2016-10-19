@@ -1,5 +1,7 @@
 package com.science.baserecyclerviewadaptertest;
 
+import java.util.List;
+
 /**
  * @author SScience
  * @description
@@ -10,11 +12,11 @@ package com.science.baserecyclerviewadaptertest;
 public class Person {
 
     private String name;
-    private int age;
+    private List<Score> score;
 
-    public Person(String name, int age) {
+    public Person(String name, List<Score> score) {
         this.name = name;
-        this.age = age;
+        this.score = score;
     }
 
     public String getName() {
@@ -25,11 +27,27 @@ public class Person {
         this.name = name;
     }
 
-    public int getAge() {
-        return age;
+    public List<Score> getCourse() {
+        return score;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setCourse(List<Score> score) {
+        this.score = score;
+    }
+
+    public static class Score {
+        private String java;
+
+        public Score(String java) {
+            this.java = java;
+        }
+
+        public String getJava() {
+            return java;
+        }
+
+        public void setJava(String java) {
+            this.java = java;
+        }
     }
 }
