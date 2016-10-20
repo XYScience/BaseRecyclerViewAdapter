@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
 import com.science.baserecyclerviewadapter.base.BaseSectionAdapter;
@@ -33,11 +34,15 @@ public class SectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Section List");
+        setSupportActionBar(toolbar);
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        final MySectionAdapter adapter = new MySectionAdapter(this);
+        final MySectionAdapter adapter = new MySectionAdapter(this, recyclerView);
         adapter.setOnItemClickListener(new OnItemClickListener<SectionActivity.MySection>() {
 
             @Override
@@ -123,8 +128,8 @@ public class SectionActivity extends AppCompatActivity {
 
     class MySectionAdapter extends BaseSectionAdapter<SectionActivity.MySection> {
 
-        public MySectionAdapter(Context context) {
-            super(context);
+        public MySectionAdapter(Context context, RecyclerView recyclerView) {
+            super(context, recyclerView);
         }
 
         @Override

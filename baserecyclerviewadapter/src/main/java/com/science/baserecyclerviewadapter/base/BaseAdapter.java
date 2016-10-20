@@ -33,6 +33,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     public static final int TYPE_FOOTER_ITEM_VIEW = 10002; // 整个列表的底部item（显示正在加载or加载结束等）
     public static final int TYPE_EMPTY_ITEM_VIEW = 10003; // 无任何数据时的item
     private Context mContext;
+    private RecyclerView mRecyclerView;
     private View mEmptyView;
     private View mFooterView;
     private boolean isAutoLoadMore = true; // 是否自动加载，即当数据不满一屏幕会自动加载
@@ -47,8 +48,9 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public abstract void convert(ViewHolder viewHolder, List<T> dataList, int position); // 设置普通Item数据
 
-    public BaseAdapter(Context context) {
+    public BaseAdapter(Context context, RecyclerView recyclerView) {
         mContext = context;
+        mRecyclerView = recyclerView;
         mData = new ArrayList<>();
     }
 
@@ -299,7 +301,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         if (data != null && !data.isEmpty()) {
             mData.clear();
             mData.addAll(data);
-            notifyItemChanged(0);
+            notifyItemInserted(0);
+            mRecyclerView.scrollToPosition(0);
             isDataEmpty = false;
             currentPage = 1;
         }
@@ -390,39 +393,41 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         showLoadFailed(R.drawable.empty, R.string.no_data, R.string.load_failed);
     }
 
-    public void showLoadFailed(int noDataDrawableRes, int noDataStringRes, int loadFailedStringRes) {
+    public void showLoadFailed(int noDataDrawableRes, int noDataStringRes, final int loadFailedStringRes) {
         // 有数据，列表footer加载失败
         if (!mData.isEmpty()) {
             if (mFooterView != null) {
                 isLoadMore = false;
                 final View viewProgress = mFooterView.findViewById(R.id.progress);
                 ViewCompat.animate(viewProgress).alpha(0).start();
-                viewProgress.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        viewProgress.setVisibility(View.GONE);
-                    }
-                }, 300);
                 final TextView viewResult = (TextView) mFooterView.findViewById(R.id.tv_load_result);
                 viewResult.setText(loadFailedStringRes);
                 viewResult.setVisibility(View.VISIBLE);
                 ViewCompat.animate(viewResult).alpha(1).start();
-                viewResult.setOnClickListener(new OnClickListener() {
+                viewProgress.postDelayed(new Runnable() {
                     @Override
-                    public void onClicks(View v) {
-                        isLoadMore = true;
-                        viewProgress.setVisibility(View.VISIBLE);
-                        ViewCompat.animate(viewProgress).alpha(1).start();
-                        ViewCompat.animate(viewResult).alpha(0).start();
-                        viewResult.postDelayed(new Runnable() {
+                    public void run() {
+                        viewProgress.setVisibility(View.GONE);
+
+                        viewResult.setOnClickListener(new OnClickListener() {
                             @Override
-                            public void run() {
-                                viewResult.setVisibility(View.GONE);
+                            public void onClicks(View v) {
+                                isLoadMore = true;
+                                viewProgress.setVisibility(View.VISIBLE);
+                                ViewCompat.animate(viewProgress).alpha(1).start();
+                                ViewCompat.animate(viewResult).alpha(0).start();
+                                viewResult.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        viewResult.setVisibility(View.GONE);
+                                    }
+                                }, 300);
+                                scrollLoadMore();
                             }
-                        }, 300);
-                        scrollLoadMore();
+                        });
                     }
-                });
+                }, 300);
+
             }
         }
         // 无数据，全屏显示暂无数据

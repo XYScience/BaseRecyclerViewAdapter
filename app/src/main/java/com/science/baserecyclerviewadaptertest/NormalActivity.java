@@ -6,12 +6,14 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
 import com.science.baserecyclerviewadapter.base.BaseCommonAdapter;
 import com.science.baserecyclerviewadapter.base.ViewHolder;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
+import com.science.baserecyclerviewadapter.widget.DefItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +28,16 @@ public class NormalActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("普通List");
+        setSupportActionBar(toolbar);
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.addItemDecoration(new DefItemDecoration(this, true));
 
-        final MyAdapter adapter = new MyAdapter(this);
+        final MyAdapter adapter = new MyAdapter(this, recyclerView);
         adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
 
             @Override
@@ -111,8 +118,8 @@ public class NormalActivity extends AppCompatActivity {
 
     class MyAdapter extends BaseCommonAdapter<List<Person>> {
 
-        public MyAdapter(Context context) {
-            super(context);
+        public MyAdapter(Context context, RecyclerView recyclerView) {
+            super(context, recyclerView);
         }
 
         @Override

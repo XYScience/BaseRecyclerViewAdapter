@@ -1,10 +1,12 @@
 package com.science.baserecyclerviewadapter.base;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.science.baserecyclerviewadapter.widget.StickyHeaderItemDecoration;
 import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
 
 import java.util.List;
@@ -16,7 +18,8 @@ import java.util.List;
  * @data 2016/10/13
  */
 
-public abstract class BaseStickyAdapter<T> extends BaseAdapter {
+public abstract class BaseStickyAdapter<T> extends BaseAdapter
+        implements StickyHeaderItemDecoration.StickyHeaderAdapter {
 
     public static final int TYPE_COMMON_SECTION_HEADER_ITEM_VIEW = 100011; // 普通数据中的头部item
     private Context mContext;
@@ -48,8 +51,8 @@ public abstract class BaseStickyAdapter<T> extends BaseAdapter {
 
     public abstract void convertHeader(ViewHolder viewHolder, T data, int section); // 设置普通Item头部数据
 
-    public BaseStickyAdapter(Context context) {
-        super(context);
+    public BaseStickyAdapter(Context context, RecyclerView recyclerView) {
+        super(context, recyclerView);
         mContext = context;
         mSectionCountCache = new SparseArray<>();
         mSectionCache = new SparseArray<>();
@@ -211,6 +214,15 @@ public abstract class BaseStickyAdapter<T> extends BaseAdapter {
         notifyItemInserted(size);
         isLoadMore = true; // 在一次的数据加载完成后，才可以再次加载
         isLoading = false; // 表示加载完成
+    }
+
+    @Override
+    public boolean isStickyViewType(int viewType) {
+        if (viewType == TYPE_COMMON_SECTION_HEADER_ITEM_VIEW) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

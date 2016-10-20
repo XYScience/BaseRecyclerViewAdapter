@@ -6,12 +6,14 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
 import com.science.baserecyclerviewadapter.base.BaseStickyAdapter;
 import com.science.baserecyclerviewadapter.base.ViewHolder;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
+import com.science.baserecyclerviewadapter.widget.StickyHeaderItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +35,16 @@ public class StickyHeaderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("粘性头部List");
+        setSupportActionBar(toolbar);
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.addItemDecoration(new StickyHeaderItemDecoration());
 
-        final StickyAdapter adapter = new StickyAdapter(this);
+        final StickyAdapter adapter = new StickyAdapter(this, recyclerView);
         adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
 
             @Override
@@ -120,8 +127,8 @@ public class StickyHeaderActivity extends AppCompatActivity {
 
         private List<Person> listPerson = new ArrayList<>();
 
-        public StickyAdapter(Context context) {
-            super(context);
+        public StickyAdapter(Context context, RecyclerView recyclerView) {
+            super(context, recyclerView);
         }
 
         @Override
