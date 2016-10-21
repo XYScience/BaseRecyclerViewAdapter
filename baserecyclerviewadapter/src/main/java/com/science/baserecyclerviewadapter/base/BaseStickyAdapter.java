@@ -1,13 +1,12 @@
 package com.science.baserecyclerviewadapter.base;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.science.baserecyclerviewadapter.widget.StickyHeaderItemDecoration;
 import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
+import com.science.baserecyclerviewadapter.widget.StickyHeaderItemDecoration;
 
 import java.util.List;
 
@@ -51,8 +50,8 @@ public abstract class BaseStickyAdapter<T> extends BaseAdapter
 
     public abstract void convertHeader(ViewHolder viewHolder, T data, int section); // 设置普通Item头部数据
 
-    public BaseStickyAdapter(Context context, RecyclerView recyclerView) {
-        super(context, recyclerView);
+    public BaseStickyAdapter(Context context) {
+        super(context);
         mContext = context;
         mSectionCountCache = new SparseArray<>();
         mSectionCache = new SparseArray<>();
@@ -211,7 +210,7 @@ public abstract class BaseStickyAdapter<T> extends BaseAdapter
     private void setLoadMoreData(List<T> data) {
         int size = getItemCount() - getFooterViewCount();
         mData.addAll(data);
-        notifyItemInserted(size);
+        notifyItemChanged(size);
         isLoadMore = true; // 在一次的数据加载完成后，才可以再次加载
         isLoading = false; // 表示加载完成
     }

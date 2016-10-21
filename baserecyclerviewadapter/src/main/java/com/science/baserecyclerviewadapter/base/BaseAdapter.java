@@ -1,5 +1,6 @@
 package com.science.baserecyclerviewadapter.base;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
@@ -9,9 +10,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
 import com.science.baserecyclerviewadapter.R;
+import com.science.baserecyclerviewadapter.animation.AlphaInAnimation;
 import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
@@ -33,14 +36,15 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     public static final int TYPE_FOOTER_ITEM_VIEW = 10002; // 整个列表的底部item（显示正在加载or加载结束等）
     public static final int TYPE_EMPTY_ITEM_VIEW = 10003; // 无任何数据时的item
     private Context mContext;
-    private RecyclerView mRecyclerView;
     private View mEmptyView;
     private View mFooterView;
     private boolean isAutoLoadMore = true; // 是否自动加载，即当数据不满一屏幕会自动加载
     protected boolean isDataEmpty = true; // 数据是否为空
     protected boolean isLoadMore = true; // 是否加载更多
     protected int currentPage = 0;
+    private int mLastPosition = -1;
     protected List<T> mData;
+    private AlphaInAnimation mAlphaInAnimation;
     protected OnItemClickListener<T> mOnItemClickListener;
     private OnLoadMoreListener mOnLoadMoreListener;
 
@@ -48,10 +52,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public abstract void convert(ViewHolder viewHolder, List<T> dataList, int position); // 设置普通Item数据
 
-    public BaseAdapter(Context context, RecyclerView recyclerView) {
+    public BaseAdapter(Context context) {
         mContext = context;
-        mRecyclerView = recyclerView;
         mData = new ArrayList<>();
+        mAlphaInAnimation = new AlphaInAnimation();
     }
 
     @Override
@@ -160,7 +164,34 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                 StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) lp;
                 p.setFullSpan(true);
             }
+        } else {
+            addAnimation(holder);
         }
+    }
+
+    /**
+     * add animation when you want to show time
+     *
+     * @param holder
+     */
+    private void addAnimation(RecyclerView.ViewHolder holder) {
+        if (holder.getLayoutPosition() > mLastPosition) {
+            for (Animator anim : mAlphaInAnimation.getAnimators(holder.itemView)) {
+                startAnim(anim, holder.getLayoutPosition());
+            }
+            mLastPosition = holder.getLayoutPosition();
+        }
+    }
+
+    /**
+     * set anim to start when loading
+     *
+     * @param anim
+     * @param index
+     */
+    protected void startAnim(Animator anim, int index) {
+        anim.setDuration(300).start();
+        anim.setInterpolator(new LinearInterpolator());
     }
 
     /**
@@ -288,7 +319,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     private void setLoadMoreData(List<T> data) {
         int size = mData.size();
         mData.addAll(data);
-        notifyItemInserted(size);
+        notifyItemChanged(size);
         isLoadMore = true; // 在一次的数据加载完成后，才可以再次加载
     }
 
@@ -301,10 +332,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         if (data != null && !data.isEmpty()) {
             mData.clear();
             mData.addAll(data);
-            notifyItemInserted(0);
-            mRecyclerView.scrollToPosition(0);
+            notifyDataSetChanged();
             isDataEmpty = false;
             currentPage = 1;
+            mLastPosition = -1;
         }
     }
 

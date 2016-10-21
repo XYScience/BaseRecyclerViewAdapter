@@ -1,7 +1,6 @@
 package com.science.baserecyclerviewadapter.base;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -33,8 +32,8 @@ public abstract class BaseSectionAdapter<T extends SectionEntity> extends BaseAd
 
     public abstract void convertFooter(ViewHolder viewHolder, T data); // 设置普通Item尾部数据
 
-    public BaseSectionAdapter(Context context, RecyclerView recyclerView) {
-        super(context, recyclerView);
+    public BaseSectionAdapter(Context context) {
+        super(context);
         mContext = context;
     }
 

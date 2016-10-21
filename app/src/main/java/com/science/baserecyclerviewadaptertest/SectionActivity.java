@@ -42,7 +42,7 @@ public class SectionActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        final MySectionAdapter adapter = new MySectionAdapter(this, recyclerView);
+        final MySectionAdapter adapter = new MySectionAdapter(this);
         adapter.setOnItemClickListener(new OnItemClickListener<SectionActivity.MySection>() {
 
             @Override
@@ -128,8 +128,8 @@ public class SectionActivity extends AppCompatActivity {
 
     class MySectionAdapter extends BaseSectionAdapter<SectionActivity.MySection> {
 
-        public MySectionAdapter(Context context, RecyclerView recyclerView) {
-            super(context, recyclerView);
+        public MySectionAdapter(Context context) {
+            super(context);
         }
 
         @Override

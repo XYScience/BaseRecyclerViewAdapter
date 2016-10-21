@@ -37,7 +37,7 @@ public class NormalActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DefItemDecoration(this, true));
 
-        final MyAdapter adapter = new MyAdapter(this, recyclerView);
+        final MyAdapter adapter = new MyAdapter(this);
         adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
 
             @Override
@@ -118,8 +118,8 @@ public class NormalActivity extends AppCompatActivity {
 
     class MyAdapter extends BaseCommonAdapter<List<Person>> {
 
-        public MyAdapter(Context context, RecyclerView recyclerView) {
-            super(context, recyclerView);
+        public MyAdapter(Context context) {
+            super(context);
         }
 
         @Override
