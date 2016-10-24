@@ -38,7 +38,7 @@ public class SectionActivity extends AppCompatActivity {
         toolbar.setTitle("Section List");
         setSupportActionBar(toolbar);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -53,6 +53,7 @@ public class SectionActivity extends AppCompatActivity {
             @Override
             public void onItemSectionHeaderClick(ViewHolder viewHolder, MySection data, int position) {
                 Toast.makeText(SectionActivity.this, data.data.getName(), Toast.LENGTH_SHORT).show();
+                adapter.removeData(viewHolder, recyclerView, position);
             }
 
             @Override
@@ -63,7 +64,8 @@ public class SectionActivity extends AppCompatActivity {
             @Override
             public void onItemEmptyClick() {
                 List<SectionActivity.MySection> list = new ArrayList<>();
-                list.add(new SectionActivity.MySection(true, false, new Course("头部", 22)));
+                list.add(new SectionActivity.MySection(true, false, new Course("头部1", 22)));
+                list.add(new SectionActivity.MySection(true, false, new Course("头部2", 22)));
                 for (int i = 0; i < 5; i++) {
                     list.add(new SectionActivity.MySection(new Course("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
                 }

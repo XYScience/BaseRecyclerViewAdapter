@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -13,7 +14,6 @@ import com.science.baserecyclerviewadapter.base.BaseCommonAdapter;
 import com.science.baserecyclerviewadapter.base.ViewHolder;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
-import com.science.baserecyclerviewadapter.widget.DefItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +32,11 @@ public class NormalActivity extends AppCompatActivity {
         toolbar.setTitle("普通List");
         setSupportActionBar(toolbar);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new DefItemDecoration(this, true));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, linearLayoutManager.getOrientation()));
 
         final MyAdapter adapter = new MyAdapter(this);
         adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
@@ -43,6 +44,7 @@ public class NormalActivity extends AppCompatActivity {
             @Override
             public void onItemClick(ViewHolder viewHolder, Person data, int position) {
                 Toast.makeText(NormalActivity.this, data.getName(), Toast.LENGTH_SHORT).show();
+                adapter.removeData(viewHolder, recyclerView, position);
             }
 
             @Override

@@ -58,7 +58,7 @@ public class StickyHeaderActivity extends AppCompatActivity {
                 for (int i = 0; i < 3; i++) {
                     Random r = new Random();
                     List<Person.Score> listScore = new ArrayList<>();
-                    for (int j = 0; j < r.nextInt(2) + 1; j++) {
+                    for (int j = 0; j < r.nextInt(5) + 1; j++) {
                         listScore.add(j, new Person.Score("java score:" + (80 + r.nextInt(5))));
                     }
                     list.add(new Person("person:" + i, listScore));
@@ -74,7 +74,7 @@ public class StickyHeaderActivity extends AppCompatActivity {
                 for (int i = 0; i < 3; i++) {
                     Random r = new Random();
                     List<Person.Score> listScore = new ArrayList<>();
-                    for (int j = 0; j < r.nextInt(2) + 1; j++) {
+                    for (int j = 0; j < r.nextInt(5) + 1; j++) {
                         listScore.add(j, new Person.Score("java score:" + (80 + r.nextInt(5))));
                     }
                     list.add(new Person("person:" + (adapter.getSectionCount() + i), listScore));

@@ -208,9 +208,8 @@ public abstract class BaseStickyAdapter<T> extends BaseAdapter
      * @param data
      */
     private void setLoadMoreData(List<T> data) {
-        int size = getItemCount() - getFooterViewCount();
         mData.addAll(data);
-        notifyItemChanged(size);
+        notifyDataSetChanged(); // notifyItemInserted(size);-->数据量变大时，会变卡，暂时不清楚原因
         isLoadMore = true; // 在一次的数据加载完成后，才可以再次加载
         isLoading = false; // 表示加载完成
     }
