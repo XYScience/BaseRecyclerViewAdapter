@@ -23,7 +23,9 @@ public abstract class OnItemClickListener<T> {
     /**
      * 数据为空时，点击继续加载事件
      */
-    public abstract void onItemEmptyClick();
+    public void onItemEmptyClick() {
+
+    }
 
     /**
      * section部分头部点击事件
