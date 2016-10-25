@@ -9,14 +9,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:background="#bdbdbd"
         android:gravity="center"
+        android:padding="10dp"
         android:textColor="@color/textPrimary"
         android:textSize="26sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:layout_marginTop="10dp"
-        android:background="@android:color/darker_gray" />
+        android:background="@android:color/black" />
 
 </LinearLayout>
