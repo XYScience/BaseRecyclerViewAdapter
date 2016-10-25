@@ -49,3 +49,8 @@ adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
 });
 ```   
 **预览Screenshot：**
+
+![image](https://github.com/XYScience/BaseRecyclerViewAdapter/raw/master/screenshot/common_list.gif)
+
+
+
