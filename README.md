@@ -132,4 +132,6 @@ class StickyAdapter extends BaseStickyAdapter<List<Person>> {
 2，调用recyclerview的addItemDecoration方法实现粘性头部               
 ```
 recyclerView.addItemDecoration(new StickyHeaderItemDecoration());
-```
+```     
+**预览Screenshot：**       
+![image](https://github.com/XYScience/BaseRecyclerViewAdapter/raw/master/screenshot/sticky_header_list.gif)
