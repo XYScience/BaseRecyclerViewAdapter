@@ -52,5 +52,35 @@ adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
 
 ![image](https://github.com/XYScience/BaseRecyclerViewAdapter/raw/master/screenshot/common_list.gif)
 
+2，Section List
+-----
+**使用方法：**       
 
+1，继承SectionEntity基类，用于区分各个section部分
+```
+class MySection extends SectionEntity<Course> {
+        public MySection(boolean isHeader, boolean isFooter, Course data) {
+            super(isHeader, isFooter, data);
+        }
+        public MySection(Course data) {
+            super(data);
+        }
+    }
+```
+
+2，继承BaseSectionAdapter<MySection>基类     
+
+3，数据添加          
+```
+List<SectionActivity.MySection> list = new ArrayList<>();
+list.add(new SectionActivity.MySection(true, false, new Course("头部1", 22)));
+list.add(new SectionActivity.MySection(true, false, new Course("头部2", 22)));
+for (int i = 0; i < 5; i++) {
+    list.add(new SectionActivity.MySection(new Course("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
+}
+list.add(new SectionActivity.MySection(false, true, new Course("尾部", 22)));     
+```
+
+**预览Screenshot：**       
+![image](https://github.com/XYScience/BaseRecyclerViewAdapter/raw/master/screenshot/section_list.gif)
 
