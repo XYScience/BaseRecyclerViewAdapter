@@ -84,3 +84,52 @@ list.add(new SectionActivity.MySection(false, true, new Course("尾部", 22)));
 **预览Screenshot：**       
 ![image](https://github.com/XYScience/BaseRecyclerViewAdapter/raw/master/screenshot/section_list.gif)
 
+3，粘性header List         
+-----           
+**使用方法**      
+
+1，继承BaseStickyAdapter<List<Person>>基类    
+```
+class StickyAdapter extends BaseStickyAdapter<List<Person>> {
+    private List<Person> listPerson = new ArrayList<>();
+    public StickyAdapter(Context context) {
+        super(context);
+    }
+    @Override
+    public int getItemHeaderLayoutId() {
+        return R.layout.item_header;
+    }
+    @Override
+    public int getItemLayoutId() {
+        return R.layout.item_common;
+    }
+    @Override
+    public void convertCommon(ViewHolder viewHolder, List<Person> data, int section, int position) {
+        viewHolder.setText(R.id.text, data.get(section).getCourse().get(position).getJava());
+    }
+    @Override
+    public void convertHeader(ViewHolder viewHolder, List<Person> data, int section) {
+        viewHolder.setText(R.id.header, data.get(section).getName());
+    }
+    @Override
+    public int getSectionCount() {
+        return listPerson.size();
+    }
+    @Override
+    public int getCountOfSection(int section) {
+        return listPerson.get(section).getCourse().size();
+    }
+    @Override
+    public void updateData(boolean isLoadMore, List<Person> list) {
+        if (isLoadMore) {
+             listPerson.addAll(list);
+        } else {
+             listPerson.clear();
+             listPerson.addAll(list);
+        }
+    }      
+```             
+2，调用recyclerview的addItemDecoration方法实现粘性头部               
+```
+recyclerView.addItemDecoration(new StickyHeaderItemDecoration());
+```
