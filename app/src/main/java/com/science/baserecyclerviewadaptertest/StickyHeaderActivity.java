@@ -148,7 +148,12 @@ public class StickyHeaderActivity extends AppCompatActivity {
 
         @Override
         public void convertHeader(ViewHolder viewHolder, List<Person> data, int section) {
-            viewHolder.setText(R.id.header, data.get(section).getName());
+            if (section == 1) {
+                viewHolder.setText(R.id.header, data.get(section).getName(), R.color.colorPrimary);
+                viewHolder.setTextSize(R.id.header, 40);
+            } else {
+                viewHolder.setText(R.id.header, data.get(section).getName());
+            }
         }
 
         @Override

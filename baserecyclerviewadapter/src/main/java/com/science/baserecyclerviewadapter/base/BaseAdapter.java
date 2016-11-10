@@ -360,7 +360,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     /**
      * 当没有数据时,显示"暂无数据",并关闭加载控件
      */
-    private void showEmptyViewNoData(int drawableRes, int stringRes) {
+    private void showEmptyViewNoData(int drawableRes, String stringRes) {
         if (mEmptyView != null) {
             final View viewProgress = mEmptyView.findViewById(R.id.progress);
             ViewCompat.animate(viewProgress).alpha(0).start();
@@ -439,10 +439,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * 当无网络等原因加载失败时
      */
     public void showLoadFailed() {
-        showLoadFailed(R.drawable.empty, R.string.no_data, R.string.load_failed);
+        showLoadFailed(R.drawable.empty, mContext.getResources().getString(R.string.no_data), mContext.getResources().getString(R.string.load_failed));
     }
 
-    public void showLoadFailed(int noDataDrawableRes, int noDataStringRes, final int loadFailedStringRes) {
+    public void showLoadFailed(int noDataDrawableRes, String noDataStringRes, final String loadFailedStringRes) {
         // 有数据，列表footer加载失败
         if (!mData.isEmpty()) {
             if (mFooterView != null) {
@@ -450,7 +450,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                 final View viewProgress = mFooterView.findViewById(R.id.progress);
                 ViewCompat.animate(viewProgress).alpha(0).start();
                 final TextView viewResult = (TextView) mFooterView.findViewById(R.id.tv_load_result);
-                viewResult.setText(loadFailedStringRes);
+                viewResult.setText(mContext.getString(R.string.load_failed_custom, loadFailedStringRes));
                 viewResult.setVisibility(View.VISIBLE);
                 ViewCompat.animate(viewResult).alpha(1).start();
                 viewProgress.postDelayed(new Runnable() {
