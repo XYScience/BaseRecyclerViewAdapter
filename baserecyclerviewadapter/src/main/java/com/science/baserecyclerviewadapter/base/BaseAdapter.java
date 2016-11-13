@@ -469,9 +469,9 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                                     @Override
                                     public void run() {
                                         viewResult.setVisibility(View.GONE);
+                                        scrollLoadMore();
                                     }
                                 }, 300);
-                                scrollLoadMore();
                             }
                         });
                     }
