@@ -382,8 +382,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                 @Override
                 public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
-                        showEmptyViewProgress(viewProgress, textNoData);
-                        mOnItemClickListener.onItemEmptyClick();
+                        showEmptyViewProgress(mOnItemClickListener, viewProgress, textNoData);
                     }
                 }
             });
@@ -393,10 +392,11 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     /**
      * 当无数据并且点击继续记载数据时，显示加载动画，并隐藏“暂无数据”
      *
+     * @param onItemClickListener
      * @param viewProgress
      * @param textNoData
      */
-    private void showEmptyViewProgress(final View viewProgress, final TextView textNoData) {
+    private void showEmptyViewProgress(final OnItemClickListener<T> onItemClickListener, final View viewProgress, final TextView textNoData) {
         if (mEmptyView != null) {
             mEmptyView.findViewById(R.id.rl_empty).setOnClickListener(null);
             ViewCompat.animate(viewProgress).alpha(1).start();
@@ -406,6 +406,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                 public void run() {
                     textNoData.setVisibility(View.GONE);
                     viewProgress.setVisibility(View.VISIBLE);
+                    onItemClickListener.onItemEmptyClick();
                 }
             }, 300);
         }
