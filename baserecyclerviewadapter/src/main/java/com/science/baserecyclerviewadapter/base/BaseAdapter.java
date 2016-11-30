@@ -52,10 +52,12 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public abstract void convert(ViewHolder viewHolder, List<T> dataList, int position); // 设置普通Item数据
 
-    public BaseAdapter(Context context) {
+    public BaseAdapter(Context context, RecyclerView recyclerView) {
         mContext = context;
         mData = new ArrayList<>();
         mAlphaInAnimation = new AlphaInAnimation();
+        mFooterView = AdapterUtil.inflate(mContext, R.layout.item_footer, (ViewGroup) recyclerView.getParent());
+        mEmptyView = AdapterUtil.inflate(mContext, R.layout.item_empty, (ViewGroup) recyclerView.getParent());
     }
 
     @Override
@@ -63,15 +65,9 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         ViewHolder viewHolder = null;
         switch (viewType) {
             case TYPE_FOOTER_ITEM_VIEW:
-                if (mFooterView == null) {
-                    mFooterView = AdapterUtil.inflate(mContext, R.layout.item_footer, parent);
-                }
                 viewHolder = ViewHolder.create(mFooterView);
                 break;
             case TYPE_EMPTY_ITEM_VIEW:
-                if (mEmptyView == null) {
-                    mEmptyView = AdapterUtil.inflate(mContext, R.layout.item_empty, parent);
-                }
                 viewHolder = ViewHolder.create(mEmptyView);
                 break;
             default:

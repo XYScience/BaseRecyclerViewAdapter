@@ -1,6 +1,7 @@
 package com.science.baserecyclerviewadapter.base;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
@@ -18,8 +19,8 @@ public abstract class BaseCommonAdapter<T> extends BaseAdapter {
 
     public abstract void convertCommon(ViewHolder viewHolder, T data, int position); // 设置普通Item数据
 
-    public BaseCommonAdapter(Context context) {
-        super(context);
+    public BaseCommonAdapter(Context context, RecyclerView recyclerView) {
+        super(context, recyclerView);
     }
 
     @Override
