@@ -2,6 +2,7 @@ package com.science.baserecyclerviewadapter.base;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -78,6 +79,12 @@ public class ViewHolder extends RecyclerView.ViewHolder {
     public ViewHolder setImageResource(int viewId, int drawableId) {
         ImageView view = getView(viewId);
         view.setImageResource(drawableId);
+        return this;
+    }
+
+    public ViewHolder setImageDrawable(int viewId, Drawable drawable) {
+        ImageView view = getView(viewId);
+        view.setImageDrawable(drawable);
         return this;
     }
 
