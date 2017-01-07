@@ -304,16 +304,21 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * @param appBarLayout
      */
     public void turnOffToolbarCollapse(RecyclerView.LayoutManager layoutManager, Toolbar toolbar, AppBarLayout appBarLayout) {
+        AppBarLayout.LayoutParams toolbarLayoutParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+        CoordinatorLayout.LayoutParams appBarLayoutParams = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
         if (findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
             //turn off scrolling
-            AppBarLayout.LayoutParams toolbarLayoutParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
             toolbarLayoutParams.setScrollFlags(0);
-            toolbar.setLayoutParams(toolbarLayoutParams);
-
-            CoordinatorLayout.LayoutParams appBarLayoutParams = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
             appBarLayoutParams.setBehavior(null);
-            appBarLayout.setLayoutParams(appBarLayoutParams);
+        } else {
+            // turn on scrolling
+            toolbarLayoutParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+                    | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+                    | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
+            appBarLayoutParams.setBehavior(new AppBarLayout.Behavior());
         }
+        toolbar.setLayoutParams(toolbarLayoutParams);
+        appBarLayout.setLayoutParams(appBarLayoutParams);
     }
 
     /**
