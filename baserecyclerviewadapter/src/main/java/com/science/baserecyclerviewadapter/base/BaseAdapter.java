@@ -3,11 +3,14 @@ package com.science.baserecyclerviewadapter.base;
 import android.animation.Animator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
@@ -291,6 +294,26 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             }
         }
         return max;
+    }
+
+    /**
+     * 如果当前的Activity的组合是Toolbar+TabLayout+RecyclerView，则满足item没有占满一屏幕时，toolbar禁止伸缩
+     *
+     * @param layoutManager
+     * @param toolbar
+     * @param appBarLayout
+     */
+    public void turnOffToolbarCollapse(RecyclerView.LayoutManager layoutManager, Toolbar toolbar, AppBarLayout appBarLayout) {
+        if (findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
+            //turn off scrolling
+            AppBarLayout.LayoutParams toolbarLayoutParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+            toolbarLayoutParams.setScrollFlags(0);
+            toolbar.setLayoutParams(toolbarLayoutParams);
+
+            CoordinatorLayout.LayoutParams appBarLayoutParams = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+            appBarLayoutParams.setBehavior(null);
+            appBarLayout.setLayoutParams(appBarLayoutParams);
+        }
     }
 
     /**

@@ -44,7 +44,7 @@ public class StickyHeaderActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new StickyHeaderItemDecoration());
 
-        final StickyAdapter adapter = new StickyAdapter(this);
+        final StickyAdapter adapter = new StickyAdapter(this, recyclerView);
         adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
 
             @Override
@@ -127,8 +127,8 @@ public class StickyHeaderActivity extends AppCompatActivity {
 
         private List<Person> listPerson = new ArrayList<>();
 
-        public StickyAdapter(Context context) {
-            super(context);
+        public StickyAdapter(Context context, RecyclerView recyclerView) {
+            super(context, recyclerView);
         }
 
         @Override

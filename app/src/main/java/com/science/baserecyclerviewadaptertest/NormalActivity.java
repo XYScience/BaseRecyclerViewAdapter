@@ -38,7 +38,7 @@ public class NormalActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, linearLayoutManager.getOrientation()));
 
-        final MyAdapter adapter = new MyAdapter(this);
+        final MyAdapter adapter = new MyAdapter(this, recyclerView);
         adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
 
             @Override
@@ -120,8 +120,8 @@ public class NormalActivity extends AppCompatActivity {
 
     class MyAdapter extends BaseCommonAdapter<List<Person>> {
 
-        public MyAdapter(Context context) {
-            super(context);
+        public MyAdapter(Context context, RecyclerView recyclerView) {
+            super(context, recyclerView);
         }
 
         @Override
