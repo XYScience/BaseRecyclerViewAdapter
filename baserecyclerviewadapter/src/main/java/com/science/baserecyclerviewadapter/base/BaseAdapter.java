@@ -50,6 +50,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     private AlphaInAnimation mAlphaInAnimation;
     protected OnItemClickListener<T> mOnItemClickListener;
     private OnLoadMoreListener mOnLoadMoreListener;
+    private RecyclerView mRecyclerView;
 
     public abstract int getItemLayoutId(); // 设置普通Item布局
 
@@ -57,6 +58,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public BaseAdapter(Context context, RecyclerView recyclerView) {
         mContext = context;
+        mRecyclerView = recyclerView;
         mData = new ArrayList<>();
         mAlphaInAnimation = new AlphaInAnimation();
         mFooterView = AdapterUtil.inflate(mContext, R.layout.item_footer, (ViewGroup) recyclerView.getParent());
@@ -106,7 +108,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemViewType(int position) {
-        if (mData.isEmpty()) {
+        if (mData.isEmpty() && mEmptyView != null) {
             return TYPE_EMPTY_ITEM_VIEW;
         }
         if (isFooterView(position)) {
@@ -121,7 +123,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemCount() {
-        if (mData.isEmpty()) {
+        if (mData.isEmpty() && mEmptyView != null) {
             return 1; // 数据为空，则显示“暂时没有数据”
         }
         return mData.size() + getFooterViewCount();
@@ -322,6 +324,13 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     /**
+     * 自定义无数据时空白view
+     */
+    public void setCustomEmptyView() {
+        mEmptyView = null;
+    }
+
+    /**
      * 设置数据
      *
      * @param isLoadMore 是否是新数据
@@ -372,13 +381,23 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * @param viewHolder
      * @param position
      */
-    public void removeData(ViewHolder viewHolder, RecyclerView recyclerView, int position) {
+    public void removeData(ViewHolder viewHolder, int position) {
         mData.remove(viewHolder.getLayoutPosition()); // 把数据从list中remove掉
         notifyItemRemoved(viewHolder.getLayoutPosition()); // 显示动画效果
         notifyItemRangeChanged(position, mData.size() - position); // 对于被删掉的位置及其后range大小范围内的view进行重新onBindViewHolder
-        if (findLastVisibleItemPosition(recyclerView.getLayoutManager()) + 1 == getItemCount()) {
+        if (findLastVisibleItemPosition(mRecyclerView.getLayoutManager()) + 1 == getItemCount()) {
             scrollLoadMore();
         }
+    }
+
+    /**
+     * 自定义无数据时空白view 更新单条item数据
+     * @param position
+     * @param data
+     */
+    public void updateItem(int position, T data) {
+        mData.set(position, data);
+        notifyItemChanged(position);
     }
 
     /**
