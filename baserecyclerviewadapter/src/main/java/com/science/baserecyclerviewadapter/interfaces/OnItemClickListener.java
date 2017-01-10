@@ -1,7 +1,5 @@
 package com.science.baserecyclerviewadapter.interfaces;
 
-import com.science.baserecyclerviewadapter.base.ViewHolder;
-
 /**
  * @author 幸运Science
  * @description
@@ -14,11 +12,12 @@ public abstract class OnItemClickListener<T> {
     /**
      * 普通item点击事件
      *
-     * @param viewHolder
      * @param data
      * @param position
      */
-    public abstract void onItemClick(ViewHolder viewHolder, T data, int position);
+    public abstract void onItemClick(T data, int position);
+
+    public void onItemLongClick(T data, int position){}
 
     /**
      * 数据为空时，点击继续加载事件
@@ -30,14 +29,14 @@ public abstract class OnItemClickListener<T> {
     /**
      * section部分头部点击事件
      */
-    public void onItemSectionHeaderClick(ViewHolder viewHolder, T data, int position) {
+    public void onItemSectionHeaderClick(T data, int position) {
 
     }
 
     /**
      * section部分尾部点击事件
      */
-    public void onItemSectionFooterClick(ViewHolder viewHolder, T data, int position) {
+    public void onItemSectionFooterClick(T data, int position) {
 
     }
 }

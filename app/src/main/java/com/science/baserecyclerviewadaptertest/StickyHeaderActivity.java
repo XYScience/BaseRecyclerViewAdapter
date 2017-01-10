@@ -48,7 +48,7 @@ public class StickyHeaderActivity extends AppCompatActivity {
         adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
 
             @Override
-            public void onItemClick(ViewHolder viewHolder, Person data, int position) {
+            public void onItemClick(Person data, int position) {
                 Toast.makeText(StickyHeaderActivity.this, data.getCourse().get(position).getJava(), Toast.LENGTH_SHORT).show();
             }
 

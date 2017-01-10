@@ -30,7 +30,14 @@ public abstract class BaseCommonAdapter<T> extends BaseAdapter {
             @Override
             public void onClicks(View v) {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(viewHolder, dataList.get(position), position);
+                    /**
+                     * 删除单条item
+                     * 注：不能直接使用notifyItemRemoved(position)，参数要使用getLayoutPosition()或者getAdapterPosition()，
+                     * 因为函数里面的传入的参数position，它是在进行onBind操作时确定的，在删除单项后，
+                     * 已经出现在画面里的项不会再有调用onBind机会，这样它保留的position一直是未进行删除操作前的position值。
+                     *
+                     */
+                    mOnItemClickListener.onItemClick(dataList.get(viewHolder.getLayoutPosition()), viewHolder.getLayoutPosition());
                 }
             }
         });

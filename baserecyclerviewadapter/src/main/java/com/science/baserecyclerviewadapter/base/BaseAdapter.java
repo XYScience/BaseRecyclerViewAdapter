@@ -378,13 +378,11 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * 因为函数里面的传入的参数position，它是在进行onBind操作时确定的，在删除单项后，
      * 已经出现在画面里的项不会再有调用onBind机会，这样它保留的position一直是未进行删除操作前的position值。
      *
-     * @param viewHolder
      * @param position
      */
-    public void removeData(ViewHolder viewHolder, int position) {
-        mData.remove(viewHolder.getLayoutPosition()); // 把数据从list中remove掉
-        notifyItemRemoved(viewHolder.getLayoutPosition()); // 显示动画效果
-        notifyItemRangeChanged(position, mData.size() - position); // 对于被删掉的位置及其后range大小范围内的view进行重新onBindViewHolder
+    public void removeData(int position) {
+        mData.remove(position); // 把数据从list中remove掉
+        notifyItemRemoved(position); // 显示动画效果
         if (findLastVisibleItemPosition(mRecyclerView.getLayoutManager()) + 1 == getItemCount()) {
             scrollLoadMore();
         }

@@ -42,9 +42,9 @@ public class NormalActivity extends AppCompatActivity {
         adapter.setOnItemClickListener(new OnItemClickListener<Person>() {
 
             @Override
-            public void onItemClick(ViewHolder viewHolder, Person data, int position) {
-                Toast.makeText(NormalActivity.this, data.getName(), Toast.LENGTH_SHORT).show();
-                adapter.removeData(viewHolder, recyclerView, position);
+            public void onItemClick(Person data, int position) {
+                Toast.makeText(NormalActivity.this, "name:" + data.getName(), Toast.LENGTH_SHORT).show();
+                adapter.removeData(position);
             }
 
             @Override

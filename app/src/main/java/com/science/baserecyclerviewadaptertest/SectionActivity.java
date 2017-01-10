@@ -46,18 +46,18 @@ public class SectionActivity extends AppCompatActivity {
         adapter.setOnItemClickListener(new OnItemClickListener<SectionActivity.MySection>() {
 
             @Override
-            public void onItemClick(ViewHolder viewHolder, SectionActivity.MySection data, int position) {
+            public void onItemClick(SectionActivity.MySection data, int position) {
                 Toast.makeText(SectionActivity.this, data.data.getName(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onItemSectionHeaderClick(ViewHolder viewHolder, MySection data, int position) {
+            public void onItemSectionHeaderClick(MySection data, int position) {
                 Toast.makeText(SectionActivity.this, data.data.getName(), Toast.LENGTH_SHORT).show();
-                adapter.removeData(viewHolder, recyclerView, position);
+                adapter.removeData(position);
             }
 
             @Override
-            public void onItemSectionFooterClick(ViewHolder viewHolder, MySection data, int position) {
+            public void onItemSectionFooterClick(MySection data, int position) {
                 Toast.makeText(SectionActivity.this, data.data.getName(), Toast.LENGTH_SHORT).show();
             }
 

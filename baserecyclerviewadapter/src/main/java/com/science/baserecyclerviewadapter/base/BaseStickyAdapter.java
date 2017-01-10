@@ -114,7 +114,7 @@ public abstract class BaseStickyAdapter<T> extends BaseAdapter
                 @Override
                 public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemClick(viewHolder, dataList.get(getSectionForPosition(position)),
+                        mOnItemClickListener.onItemClick(dataList.get(getSectionForPosition(position)),
                                 getPositionInSectionForPosition(position));
                     }
                 }

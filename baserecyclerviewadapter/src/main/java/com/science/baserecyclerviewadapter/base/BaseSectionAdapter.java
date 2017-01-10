@@ -69,8 +69,8 @@ public abstract class BaseSectionAdapter<T extends SectionEntity> extends BaseAd
                 @Override
                 public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemSectionHeaderClick(viewHolder,
-                                (T) dataList.get(position), position);
+                        mOnItemClickListener.onItemSectionHeaderClick((T) dataList.get(viewHolder.getLayoutPosition()),
+                                viewHolder.getLayoutPosition());
                     }
                 }
             });
@@ -80,8 +80,8 @@ public abstract class BaseSectionAdapter<T extends SectionEntity> extends BaseAd
                 @Override
                 public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemSectionFooterClick(viewHolder,
-                                (T) dataList.get(position), position);
+                        mOnItemClickListener.onItemSectionFooterClick((T) dataList.get(viewHolder.getLayoutPosition()),
+                                viewHolder.getLayoutPosition());
                     }
                 }
             });
@@ -91,7 +91,8 @@ public abstract class BaseSectionAdapter<T extends SectionEntity> extends BaseAd
                 @Override
                 public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemClick(viewHolder, (T) dataList.get(position), position);
+                        mOnItemClickListener.onItemClick((T) dataList.get(viewHolder.getLayoutPosition()),
+                                viewHolder.getLayoutPosition());
                     }
                 }
             });
