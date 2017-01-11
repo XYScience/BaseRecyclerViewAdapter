@@ -51,6 +51,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     protected OnItemClickListener<T> mOnItemClickListener;
     private OnLoadMoreListener mOnLoadMoreListener;
     private RecyclerView mRecyclerView;
+    private boolean isAnimation = true;
 
     public abstract int getItemLayoutId(); // 设置普通Item布局
 
@@ -171,12 +172,19 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     /**
+     * 设置数据item加载不显示动画（默认渐显动画）
+     */
+    public void setUnAnimation() {
+        isAnimation = false;
+    }
+
+    /**
      * add animation when you want to show time
      *
      * @param holder
      */
     private void addAnimation(RecyclerView.ViewHolder holder) {
-        if (holder.getLayoutPosition() > mLastPosition) {
+        if (holder.getLayoutPosition() > mLastPosition && isAnimation) {
             for (Animator anim : mAlphaInAnimation.getAnimators(holder.itemView)) {
                 startAnim(anim, holder.getLayoutPosition());
             }
@@ -331,6 +339,14 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     /**
+     * 获取数据
+     * @return
+     */
+    public List<T> getData() {
+        return mData;
+    }
+
+    /**
      * 设置数据
      *
      * @param isLoadMore 是否是新数据
@@ -390,6 +406,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     /**
      * 自定义无数据时空白view 更新单条item数据
+     *
      * @param position
      * @param data
      */

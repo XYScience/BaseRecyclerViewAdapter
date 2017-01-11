@@ -151,6 +151,6 @@ allprojects {
 Step 2. Add the dependency              
 ```
 dependencies {
-    compile 'com.github.XYScience:BaseRecyclerViewAdapter:1.0.7'
+    compile 'com.github.XYScience:BaseRecyclerViewAdapter:1.0.8'
 }     
 ```
