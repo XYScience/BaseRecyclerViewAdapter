@@ -37,7 +37,7 @@ public abstract class BaseCommonAdapter<T> extends BaseAdapter {
                      * 已经出现在画面里的项不会再有调用onBind机会，这样它保留的position一直是未进行删除操作前的position值。
                      *
                      */
-                    mOnItemClickListener.onItemClick(dataList.get(viewHolder.getLayoutPosition()), viewHolder.getLayoutPosition());
+                    mOnItemClickListener.onItemClick(dataList.get(position), viewHolder.getLayoutPosition());
                 }
             }
         });
