@@ -340,6 +340,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     /**
      * 获取数据
+     *
      * @return
      */
     public List<T> getData() {
@@ -386,6 +387,14 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             currentPage = 1;
             mLastPosition = -1;
         }
+    }
+
+    /**
+     * 添加数据，配合DiffUtil使用
+     * @param data
+     */
+    public void setData(List<T> data) {
+        mData = data;
     }
 
     /**
