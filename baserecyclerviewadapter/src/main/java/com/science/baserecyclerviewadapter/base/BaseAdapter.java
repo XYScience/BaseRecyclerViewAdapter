@@ -37,13 +37,16 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public static final int TYPE_COMMON_ITEM_VIEW = 10001; // 普通数据item
     public static final int TYPE_FOOTER_ITEM_VIEW = 10002; // 整个列表的底部item（显示正在加载or加载结束等）
-    public static final int TYPE_EMPTY_ITEM_VIEW = 10003; // 无任何数据时的item
+    public static final int TYPE_EMPTY_ITEM_VIEW = 10003; // 首次加载无任何数据时的item
+    public static final int TYPE_NO_DATA_ITEM_VIEW = 10004; // 首次加载无任何数据时的item
     private Context mContext;
     private View mEmptyView;
+    private View mNoDataView;
     private View mFooterView;
     private boolean isAutoLoadMore = true; // 是否自动加载，即当数据不满一屏幕会自动加载
-    protected boolean isDataEmpty = true; // 数据是否为空
+    protected boolean isDataEmpty = true; // 首次加载数据是否为空
     protected boolean isLoadMore = true; // 是否加载更多
+    private boolean isRemoveEmptyView;
     protected int currentPage = 0;
     private int mLastPosition = -1;
     protected List<T> mData;
@@ -76,6 +79,9 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             case TYPE_EMPTY_ITEM_VIEW:
                 viewHolder = ViewHolder.create(mEmptyView);
                 break;
+            case TYPE_NO_DATA_ITEM_VIEW:
+                viewHolder = ViewHolder.create(mNoDataView);
+                break;
             default:
                 viewHolder = onCreateDefViewHolder(parent, viewType);
                 break;
@@ -99,6 +105,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                 break;
             case TYPE_EMPTY_ITEM_VIEW:
                 break;
+            case TYPE_NO_DATA_ITEM_VIEW:
+                break;
             case TYPE_FOOTER_ITEM_VIEW:
                 break;
             default:
@@ -109,8 +117,13 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemViewType(int position) {
-        if (mData.isEmpty() && mEmptyView != null) {
-            return TYPE_EMPTY_ITEM_VIEW;
+        if (mData.isEmpty()) {
+            if (mEmptyView != null && !isRemoveEmptyView) {
+                return TYPE_EMPTY_ITEM_VIEW;
+            }
+            if (mNoDataView != null && isRemoveEmptyView) {
+                return TYPE_NO_DATA_ITEM_VIEW;
+            }
         }
         if (isFooterView(position)) {
             return TYPE_FOOTER_ITEM_VIEW;
@@ -124,7 +137,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemCount() {
-        if (mData.isEmpty() && mEmptyView != null) {
+        if (mData.isEmpty() && (mEmptyView != null || mNoDataView != null)) {
             return 1; // 数据为空，则显示“暂时没有数据”
         }
         return mData.size() + getFooterViewCount();
@@ -332,10 +345,18 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     /**
-     * 自定义无数据时空白view
+     * 自定义首次无数据时空白view
      */
     public void setCustomEmptyView() {
         mEmptyView = null;
+    }
+
+    /**
+     * 自定义无数据时空白view
+     */
+    public void setCustomNoDataView(View view) {
+        mNoDataView = view;
+        isRemoveEmptyView = true;
     }
 
     /**
@@ -391,6 +412,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     /**
      * 添加数据，配合DiffUtil使用
+     *
      * @param data
      */
     public void setData(List<T> data) {
