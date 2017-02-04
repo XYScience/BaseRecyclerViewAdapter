@@ -37,16 +37,13 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public static final int TYPE_COMMON_ITEM_VIEW = 10001; // 普通数据item
     public static final int TYPE_FOOTER_ITEM_VIEW = 10002; // 整个列表的底部item（显示正在加载or加载结束等）
-    public static final int TYPE_EMPTY_ITEM_VIEW = 10003; // 首次加载无任何数据时的item
-    public static final int TYPE_NO_DATA_ITEM_VIEW = 10004; // 首次加载无任何数据时的item
+    public static final int TYPE_START_ITEM_VIEW = 10003; // 首次加载无任何数据时的item
     private Context mContext;
-    private View mEmptyView;
-    private View mNoDataView;
+    private View mStartView;
     private View mFooterView;
     private boolean isAutoLoadMore = true; // 是否自动加载，即当数据不满一屏幕会自动加载
-    protected boolean isDataEmpty = true; // 首次加载数据是否为空
+    protected boolean isStartDataEmpty = true; // 首次加载数据是否为空
     protected boolean isLoadMore = true; // 是否加载更多
-    private boolean isRemoveEmptyView;
     protected int currentPage = 0;
     private int mLastPosition = -1;
     protected List<T> mData;
@@ -60,13 +57,18 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public abstract void convert(ViewHolder viewHolder, List<T> dataList, int position); // 设置普通Item数据
 
+    public abstract void convertItemClick(ViewHolder viewHolder, List<T> data, int position); // 设置Item点击事件，配合diffUtil
+
+    public void convertDiff(ViewHolder viewHolder, int position, List<Object> payloads) {
+    }// 使用diffUtil更新Item数据
+
     public BaseAdapter(Context context, RecyclerView recyclerView) {
         mContext = context;
         mRecyclerView = recyclerView;
         mData = new ArrayList<>();
         mAlphaInAnimation = new AlphaInAnimation();
         mFooterView = AdapterUtil.inflate(mContext, R.layout.item_footer, (ViewGroup) recyclerView.getParent());
-        mEmptyView = AdapterUtil.inflate(mContext, R.layout.item_empty, (ViewGroup) recyclerView.getParent());
+        mStartView = AdapterUtil.inflate(mContext, R.layout.item_empty, (ViewGroup) recyclerView.getParent());
     }
 
     @Override
@@ -76,11 +78,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             case TYPE_FOOTER_ITEM_VIEW:
                 viewHolder = ViewHolder.create(mFooterView);
                 break;
-            case TYPE_EMPTY_ITEM_VIEW:
-                viewHolder = ViewHolder.create(mEmptyView);
-                break;
-            case TYPE_NO_DATA_ITEM_VIEW:
-                viewHolder = ViewHolder.create(mNoDataView);
+            case TYPE_START_ITEM_VIEW:
+                viewHolder = ViewHolder.create(mStartView);
                 break;
             default:
                 viewHolder = onCreateDefViewHolder(parent, viewType);
@@ -103,9 +102,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             case TYPE_COMMON_ITEM_VIEW:
                 convert((ViewHolder) holder, mData, position);
                 break;
-            case TYPE_EMPTY_ITEM_VIEW:
-                break;
-            case TYPE_NO_DATA_ITEM_VIEW:
+            case TYPE_START_ITEM_VIEW:
                 break;
             case TYPE_FOOTER_ITEM_VIEW:
                 break;
@@ -116,14 +113,19 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, List<Object> payloads) {
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position);
+        } else {
+            convertDiff((ViewHolder) holder, position, payloads);
+        }
+        convertItemClick((ViewHolder) holder, mData, position);
+    }
+
+    @Override
     public int getItemViewType(int position) {
-        if (mData.isEmpty()) {
-            if (mEmptyView != null && !isRemoveEmptyView) {
-                return TYPE_EMPTY_ITEM_VIEW;
-            }
-            if (mNoDataView != null && isRemoveEmptyView) {
-                return TYPE_NO_DATA_ITEM_VIEW;
-            }
+        if (mData.isEmpty() && mStartView != null) {
+            return TYPE_START_ITEM_VIEW;
         }
         if (isFooterView(position)) {
             return TYPE_FOOTER_ITEM_VIEW;
@@ -137,7 +139,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemCount() {
-        if (mData.isEmpty() && (mEmptyView != null || mNoDataView != null)) {
+        if (mData.isEmpty() && mStartView != null) {
             return 1; // 数据为空，则显示“暂时没有数据”
         }
         return mData.size() + getFooterViewCount();
@@ -256,7 +258,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if (!isDataEmpty && !isAutoLoadMore &&
+                    if (!isStartDataEmpty && !isAutoLoadMore &&
                             findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
                         scrollLoadMore();
                     }
@@ -267,7 +269,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (!isDataEmpty && isAutoLoadMore) {
+                if (!isStartDataEmpty && isAutoLoadMore) {
                     if (findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
                         scrollLoadMore();
                         isAutoLoadMore = true;
@@ -348,15 +350,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * 自定义首次无数据时空白view
      */
     public void setCustomEmptyView() {
-        mEmptyView = null;
-    }
-
-    /**
-     * 自定义无数据时空白view
-     */
-    public void setCustomNoDataView(View view) {
-        mNoDataView = view;
-        isRemoveEmptyView = true;
+        mStartView = null;
     }
 
     /**
@@ -401,10 +395,9 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      */
     protected void setNewData(List<T> data) {
         if (data != null && !data.isEmpty()) {
-            mData.clear();
-            mData.addAll(data);
+            mData = data;
             notifyDataSetChanged();
-            isDataEmpty = false;
+            isStartDataEmpty = false;
             currentPage = 1;
             mLastPosition = -1;
         }
@@ -450,8 +443,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * 当没有数据时,显示"暂无数据",并关闭加载控件
      */
     private void showEmptyViewNoData(int drawableRes, String stringRes) {
-        if (mEmptyView != null) {
-            final View viewProgress = mEmptyView.findViewById(R.id.progress);
+        if (mStartView != null) {
+            final View viewProgress = mStartView.findViewById(R.id.progress);
             ViewCompat.animate(viewProgress).alpha(0).start();
             viewProgress.postDelayed(new Runnable() {
                 @Override
@@ -459,7 +452,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                     viewProgress.setVisibility(View.GONE);
                 }
             }, 300);
-            final TextView textNoData = (TextView) mEmptyView.findViewById(R.id.tv_no_data);
+            final TextView textNoData = (TextView) mStartView.findViewById(R.id.tv_no_data);
             textNoData.setVisibility(View.VISIBLE);
             Drawable drawable = mContext.getResources().getDrawable(drawableRes);
             drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
@@ -467,7 +460,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             textNoData.setCompoundDrawablePadding(16);
             textNoData.setText(stringRes);
             ViewCompat.animate(textNoData).alpha(1).start();
-            mEmptyView.findViewById(R.id.rl_empty).setOnClickListener(new OnClickListener() {
+            mStartView.findViewById(R.id.rl_empty).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
@@ -486,8 +479,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      * @param textNoData
      */
     private void showEmptyViewProgress(final OnItemClickListener<T> onItemClickListener, final View viewProgress, final TextView textNoData) {
-        if (mEmptyView != null) {
-            mEmptyView.findViewById(R.id.rl_empty).setOnClickListener(null);
+        if (mStartView != null) {
+            mStartView.findViewById(R.id.rl_empty).setOnClickListener(null);
             ViewCompat.animate(viewProgress).alpha(1).start();
             ViewCompat.animate(textNoData).alpha(0).start();
             textNoData.postDelayed(new Runnable() {
@@ -572,7 +565,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         // 无数据，全屏显示暂无数据
         else {
             showEmptyViewNoData(noDataDrawableRes, noDataStringRes);
-            isDataEmpty = true;
+            isStartDataEmpty = true;
         }
     }
 

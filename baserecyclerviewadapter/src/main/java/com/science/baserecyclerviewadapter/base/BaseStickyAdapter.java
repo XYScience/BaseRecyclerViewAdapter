@@ -110,16 +110,20 @@ public abstract class BaseStickyAdapter<T> extends BaseAdapter
         } else if (viewHolder.getItemViewType() == TYPE_COMMON_ITEM_VIEW) {
             convertCommon(viewHolder, (T) dataList, getSectionForPosition(position),
                     getPositionInSectionForPosition(position));
-            viewHolder.getConvertView().setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClicks(View v) {
-                    if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemClick(dataList.get(getSectionForPosition(position)),
-                                getPositionInSectionForPosition(position));
-                    }
-                }
-            });
         }
+    }
+
+    @Override
+    public void convertItemClick(ViewHolder viewHolder, final List dataList, final int position) {
+        viewHolder.getConvertView().setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClicks(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(dataList.get(getSectionForPosition(position)),
+                            getPositionInSectionForPosition(position));
+                }
+            }
+        });
     }
 
     public final int getSectionForPosition(int position) {

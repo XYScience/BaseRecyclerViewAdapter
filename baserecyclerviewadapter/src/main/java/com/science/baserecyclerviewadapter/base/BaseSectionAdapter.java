@@ -62,41 +62,48 @@ public abstract class BaseSectionAdapter<T extends SectionEntity> extends BaseAd
     }
 
     @Override
-    public void convert(final ViewHolder viewHolder, final List dataList, final int position) {
+    public void convert(ViewHolder viewHolder, List dataList, int position) {
         if (viewHolder.getItemViewType() == TYPE_COMMON_SECTION_HEADER_ITEM_VIEW) {
             convertHeader(viewHolder, (T) dataList.get(position));
+        } else if (viewHolder.getItemViewType() == TYPE_COMMON_SECTION_FOOTER_ITEM_VIEW) {
+            convertFooter(viewHolder, (T) dataList.get(position));
+        } else if (viewHolder.getItemViewType() == TYPE_COMMON_ITEM_VIEW) {
+            convert(viewHolder, (T) dataList.get(position));
+        }
+    }
+
+    @Override
+    public void convertItemClick(final ViewHolder viewHolder, final List dataList, int position) {
+        if (viewHolder.getItemViewType() == TYPE_COMMON_SECTION_HEADER_ITEM_VIEW) {
             viewHolder.getConvertView().setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemSectionHeaderClick((T) dataList.get(viewHolder.getLayoutPosition()),
-                                viewHolder.getLayoutPosition());
+                        mOnItemClickListener.onItemSectionHeaderClick((T) dataList.get(viewHolder.getAdapterPosition()),
+                                viewHolder.getAdapterPosition());
                     }
                 }
             });
         } else if (viewHolder.getItemViewType() == TYPE_COMMON_SECTION_FOOTER_ITEM_VIEW) {
-            convertFooter(viewHolder, (T) dataList.get(position));
             viewHolder.getConvertView().setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemSectionFooterClick((T) dataList.get(viewHolder.getLayoutPosition()),
-                                viewHolder.getLayoutPosition());
+                        mOnItemClickListener.onItemSectionFooterClick((T) dataList.get(viewHolder.getAdapterPosition()),
+                                viewHolder.getAdapterPosition());
                     }
                 }
             });
         } else if (viewHolder.getItemViewType() == TYPE_COMMON_ITEM_VIEW) {
-            convert(viewHolder, (T) dataList.get(position));
             viewHolder.getConvertView().setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClicks(View v) {
                     if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemClick((T) dataList.get(viewHolder.getLayoutPosition()),
-                                viewHolder.getLayoutPosition());
+                        mOnItemClickListener.onItemClick((T) dataList.get(viewHolder.getAdapterPosition()),
+                                viewHolder.getAdapterPosition());
                     }
                 }
             });
         }
     }
-
 }

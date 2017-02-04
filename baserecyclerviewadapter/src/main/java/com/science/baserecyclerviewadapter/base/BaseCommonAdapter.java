@@ -26,10 +26,14 @@ public abstract class BaseCommonAdapter<T> extends BaseAdapter {
     @Override
     public void convert(final ViewHolder viewHolder, final List dataList, final int position) {
         convertCommon(viewHolder, (T) dataList, position);
+    }
+
+    @Override
+    public void convertItemClick(final ViewHolder viewHolder, final List dataList, final int position) {
         viewHolder.getConvertView().setOnClickListener(new OnClickListener() {
             @Override
             public void onClicks(View v) {
-                if (mOnItemClickListener != null) {
+                if (mOnItemClickListener != null && !dataList.isEmpty()) {
                     /**
                      * 删除单条item
                      * 注：不能直接使用notifyItemRemoved(position)，参数要使用getLayoutPosition()或者getAdapterPosition()，
@@ -37,7 +41,7 @@ public abstract class BaseCommonAdapter<T> extends BaseAdapter {
                      * 已经出现在画面里的项不会再有调用onBind机会，这样它保留的position一直是未进行删除操作前的position值。
                      *
                      */
-                    mOnItemClickListener.onItemClick(dataList.get(position), viewHolder.getLayoutPosition());
+                    mOnItemClickListener.onItemClick(dataList.get(viewHolder.getAdapterPosition()), viewHolder.getAdapterPosition());
                 }
             }
         });
