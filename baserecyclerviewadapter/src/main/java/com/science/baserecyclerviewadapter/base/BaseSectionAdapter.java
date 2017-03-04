@@ -104,6 +104,17 @@ public abstract class BaseSectionAdapter<T extends SectionEntity> extends BaseAd
                     }
                 }
             });
+
+            viewHolder.getConvertView().setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (mOnItemClickListener != null) {
+                        mOnItemClickListener.onItemLongClick((T) dataList.get(viewHolder.getAdapterPosition()),
+                                viewHolder.getAdapterPosition());
+                    }
+                    return true;
+                }
+            });
         }
     }
 }

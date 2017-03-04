@@ -44,7 +44,13 @@ public class NormalActivity extends AppCompatActivity {
             @Override
             public void onItemClick(Person data, int position) {
                 Toast.makeText(NormalActivity.this, "name:" + data.getName(), Toast.LENGTH_SHORT).show();
-                adapter.removeData(position);
+//                adapter.removeData(position);
+            }
+
+            @Override
+            public void onItemLongClick(Person data, int position) {
+                Toast.makeText(NormalActivity.this, "long click name:" + data.getName()
+                        , Toast.LENGTH_SHORT).show();
             }
 
             @Override
