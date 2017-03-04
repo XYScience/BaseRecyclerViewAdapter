@@ -174,7 +174,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
-        if (isFooterView(holder.getLayoutPosition())) {
+        if (isFooterView(holder.getLayoutPosition()) || holder.getItemViewType() == TYPE_START_ITEM_VIEW) {
             ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
 
             if (lp != null && lp instanceof StaggeredGridLayoutManager.LayoutParams) {
@@ -232,7 +232,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    if (isFooterView(position)) {
+                    if (isFooterView(position) || getItemViewType(0) == TYPE_START_ITEM_VIEW) {
                         return gridManager.getSpanCount();
                     }
                     return 1;
