@@ -17,7 +17,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
 import com.science.baserecyclerviewadapter.R;
-import com.science.baserecyclerviewadapter.animation.AlphaInAnimation;
+import com.science.baserecyclerviewadapter.view.AlphaInAnimation;
 import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;

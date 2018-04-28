@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
-import com.science.baserecyclerviewadapter.widget.StickyHeaderItemDecoration;
+import com.science.baserecyclerviewadapter.view.StickyHeaderItemDecoration;
 
 import java.util.List;
 

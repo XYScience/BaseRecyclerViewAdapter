@@ -1,4 +1,4 @@
-package com.science.baserecyclerviewadapter.widget;
+package com.science.baserecyclerviewadapter.view;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;

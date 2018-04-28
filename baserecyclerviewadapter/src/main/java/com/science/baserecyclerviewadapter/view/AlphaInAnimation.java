@@ -1,4 +1,4 @@
-package com.science.baserecyclerviewadapter.animation;
+package com.science.baserecyclerviewadapter.view;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
