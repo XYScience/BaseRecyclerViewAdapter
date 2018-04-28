@@ -62,13 +62,14 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     public void convertDiff(ViewHolder viewHolder, int position, List<Object> payloads) {
     }// 使用diffUtil更新Item数据
 
-    public BaseAdapter(Context context, RecyclerView recyclerView) {
+    public BaseAdapter(Context context, RecyclerView recyclerView, boolean showStartView) {
         mContext = context;
         mRecyclerView = recyclerView;
         mData = new ArrayList<>();
         mAlphaInAnimation = new AlphaInAnimation();
         mFooterView = AdapterUtil.inflate(mContext, R.layout.item_footer, (ViewGroup) recyclerView.getParent());
         mStartView = AdapterUtil.inflate(mContext, R.layout.item_empty, (ViewGroup) recyclerView.getParent());
+        mStartView.setVisibility(showStartView ? View.VISIBLE : View.GONE);
     }
 
     @Override

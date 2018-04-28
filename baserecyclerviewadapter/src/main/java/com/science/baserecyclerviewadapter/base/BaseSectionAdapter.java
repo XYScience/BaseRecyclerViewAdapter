@@ -33,8 +33,8 @@ public abstract class BaseSectionAdapter<T extends SectionEntity> extends BaseAd
 
     public abstract void convertFooter(ViewHolder viewHolder, T data); // 设置普通Item尾部数据
 
-    public BaseSectionAdapter(Context context, RecyclerView recyclerView) {
-        super(context, recyclerView);
+    public BaseSectionAdapter(Context context, RecyclerView recyclerView, boolean showStartView) {
+        super(context, recyclerView, showStartView);
         mContext = context;
     }
 

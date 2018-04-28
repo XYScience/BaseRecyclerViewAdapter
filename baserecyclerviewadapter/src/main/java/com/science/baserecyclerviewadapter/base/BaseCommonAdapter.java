@@ -19,8 +19,8 @@ public abstract class BaseCommonAdapter<T> extends BaseAdapter {
 
     public abstract void convertCommon(ViewHolder viewHolder, T data, int position); // 设置普通Item数据
 
-    public BaseCommonAdapter(Context context, RecyclerView recyclerView) {
-        super(context, recyclerView);
+    public BaseCommonAdapter(Context context, RecyclerView recyclerView, boolean showStartView) {
+        super(context, recyclerView, showStartView);
     }
 
     @Override

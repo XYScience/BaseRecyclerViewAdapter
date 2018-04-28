@@ -131,7 +131,7 @@ public class SectionActivity extends AppCompatActivity {
     class MySectionAdapter extends BaseSectionAdapter<SectionActivity.MySection> {
 
         public MySectionAdapter(Context context, RecyclerView recyclerView) {
-            super(context, recyclerView);
+            super(context, recyclerView, true);
         }
 
         @Override

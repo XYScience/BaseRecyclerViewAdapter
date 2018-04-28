@@ -51,8 +51,8 @@ public abstract class BaseStickyAdapter<T> extends BaseAdapter
 
     public abstract void convertHeader(ViewHolder viewHolder, T data, int section); // 设置普通Item头部数据
 
-    public BaseStickyAdapter(Context context, RecyclerView recyclerView) {
-        super(context, recyclerView);
+    public BaseStickyAdapter(Context context, RecyclerView recyclerView, boolean showStartView) {
+        super(context, recyclerView, showStartView);
         mContext = context;
         mSectionCountCache = new SparseArray<>();
         mSectionCache = new SparseArray<>();

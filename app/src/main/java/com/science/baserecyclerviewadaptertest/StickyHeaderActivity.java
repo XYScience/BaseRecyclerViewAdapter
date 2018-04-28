@@ -128,7 +128,7 @@ public class StickyHeaderActivity extends AppCompatActivity {
         private List<Person> listPerson = new ArrayList<>();
 
         public StickyAdapter(Context context, RecyclerView recyclerView) {
-            super(context, recyclerView);
+            super(context, recyclerView, true);
         }
 
         @Override

@@ -127,7 +127,7 @@ public class NormalActivity extends AppCompatActivity {
     class MyAdapter extends BaseCommonAdapter<List<Person>> {
 
         public MyAdapter(Context context, RecyclerView recyclerView) {
-            super(context, recyclerView);
+            super(context, recyclerView, true);
         }
 
         @Override
