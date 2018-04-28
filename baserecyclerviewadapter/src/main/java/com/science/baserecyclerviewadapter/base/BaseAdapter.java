@@ -68,8 +68,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         mData = new ArrayList<>();
         mAlphaInAnimation = new AlphaInAnimation();
         mFooterView = AdapterUtil.inflate(mContext, R.layout.item_footer, (ViewGroup) recyclerView.getParent());
-        mStartView = AdapterUtil.inflate(mContext, R.layout.item_empty, (ViewGroup) recyclerView.getParent());
-        mStartView.setVisibility(showStartView ? View.VISIBLE : View.GONE);
+        mStartView = showStartView ? AdapterUtil.inflate(mContext, R.layout.item_empty, (ViewGroup) recyclerView.getParent()) : null;
     }
 
     @Override
@@ -348,13 +347,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     /**
-     * 自定义首次无数据时空白view
-     */
-    public void setCustomEmptyView() {
-        mStartView = null;
-    }
-
-    /**
      * 获取数据
      *
      * @return
@@ -411,6 +403,11 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
      */
     public void setData(List<T> data) {
         mData = data;
+    }
+
+    public void clearData() {
+        mData.clear();
+        notifyDataSetChanged();
     }
 
     /**

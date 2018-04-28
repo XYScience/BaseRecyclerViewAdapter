@@ -13,7 +13,7 @@ import com.science.baserecyclerviewadapter.base.BaseStickyAdapter;
 import com.science.baserecyclerviewadapter.base.ViewHolder;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
-import com.science.baserecyclerviewadapter.widget.StickyHeaderItemDecoration;
+import com.science.baserecyclerviewadapter.view.StickyHeaderItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
