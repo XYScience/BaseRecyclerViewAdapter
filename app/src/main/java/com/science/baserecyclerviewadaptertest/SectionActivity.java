@@ -64,12 +64,12 @@ public class SectionActivity extends AppCompatActivity {
             @Override
             public void onItemEmptyClick() {
                 List<SectionActivity.MySection> list = new ArrayList<>();
-                list.add(new SectionActivity.MySection(true, false, new Course("头部1", 22)));
-                list.add(new SectionActivity.MySection(true, false, new Course("头部2", 22)));
+                list.add(new SectionActivity.MySection("头部1", null));
+                list.add(new SectionActivity.MySection("头部2", null));
                 for (int i = 0; i < 5; i++) {
                     list.add(new SectionActivity.MySection(new Course("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
                 }
-                list.add(new SectionActivity.MySection(false, true, new Course("尾部", 22)));
+                list.add(new SectionActivity.MySection(null, "尾部"));
                 // 首次请求失败后，点击再次请求网络
                 getData(false, adapter, list);
             }
@@ -78,11 +78,11 @@ public class SectionActivity extends AppCompatActivity {
             @Override
             public void onLoadMore(int currentPage) {
                 List<SectionActivity.MySection> list = new ArrayList<>();
-                list.add(new SectionActivity.MySection(true, false, new Course("头部", 22)));
+                list.add(new SectionActivity.MySection("头部1", null));
                 for (int i = 0; i < 5; i++) {
                     list.add(new SectionActivity.MySection(new Course("item:" + (adapter.getItemCount() - 1 + i), 20 + i)));
                 }
-                list.add(new SectionActivity.MySection(false, true, new Course("尾部", 22)));
+                list.add(new SectionActivity.MySection(null, "尾部"));
                 // 加载更多数据
                 getData(true, adapter, list);
             }
@@ -168,10 +168,10 @@ public class SectionActivity extends AppCompatActivity {
         }
     }
 
-    class MySection extends SectionEntity<Course> {
+    class MySection extends SectionEntity<Course, String, String> {
 
-        public MySection(boolean isHeader, boolean isFooter, Course data) {
-            super(isHeader, isFooter, data);
+        public MySection(String header, String footer) {
+            super(header, footer);
         }
 
         public MySection(Course data) {

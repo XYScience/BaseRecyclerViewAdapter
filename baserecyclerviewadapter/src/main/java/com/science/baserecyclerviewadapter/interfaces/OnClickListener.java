@@ -3,9 +3,9 @@ package com.science.baserecyclerviewadapter.interfaces;
 import android.view.View;
 
 /**
- * @author 幸运Science
+ * @author SScience
  * @description
- * @email chentushen.science@gmail.com,274240671@qq.com
+ * @email chentushen.science@gmail.com
  * @data 2016/10/17
  */
 

@@ -6,9 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * @author 幸运Science
+ * @author SScience
  * @description
- * @email chentushen.science@gmail.com,274240671@qq.com
+ * @email chentushen.science@gmail.com
  * @data 2016/9/30
  */
 

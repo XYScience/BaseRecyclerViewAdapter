@@ -11,9 +11,9 @@ import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
 import java.util.List;
 
 /**
- * @author 幸运Science
+ * @author SScience
  * @description section头部和尾部
- * @email chentushen.science@gmail.com,274240671@qq.com
+ * @email chentushen.science@gmail.com
  * @data 2016/10/13
  */
 
