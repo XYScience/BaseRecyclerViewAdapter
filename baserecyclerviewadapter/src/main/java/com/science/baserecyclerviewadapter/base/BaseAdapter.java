@@ -3,25 +3,23 @@ package com.science.baserecyclerviewadapter.base;
 import android.animation.Animator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
 import com.science.baserecyclerviewadapter.R;
-import com.science.baserecyclerviewadapter.view.AlphaInAnimation;
 import com.science.baserecyclerviewadapter.interfaces.OnClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnItemClickListener;
 import com.science.baserecyclerviewadapter.interfaces.OnLoadMoreListener;
 import com.science.baserecyclerviewadapter.util.AdapterUtil;
+import com.science.baserecyclerviewadapter.view.AlphaInAnimation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +35,9 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public static final int TYPE_COMMON_ITEM_VIEW = 10001; // 普通数据item
     public static final int TYPE_FOOTER_ITEM_VIEW = 10002; // 整个列表的底部item（显示正在加载or加载结束等）
-    public static final int TYPE_START_ITEM_VIEW = 10003; // 首次加载无任何数据时的item
+    public static final int TYPE_EMPTY_VIEW = 10004; // 无任何数据时的item（包括加载动画）
     private Context mContext;
-    private View mStartView;
+    private View mEmptyView;
     private View mFooterView;
     private boolean isAutoLoadMore = true; // 是否自动加载，即当数据不满一屏幕会自动加载
     protected boolean isStartDataEmpty = true; // 首次加载数据是否为空
@@ -52,6 +50,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     private OnLoadMoreListener mOnLoadMoreListener;
     private RecyclerView mRecyclerView;
     private boolean isAnimation = true;
+    private View mProgressView;
+    private TextView mTvTip, mTvTipSecond;
 
     public abstract int getItemLayoutId(); // 设置普通Item布局
 
@@ -68,7 +68,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         mData = new ArrayList<>();
         mAlphaInAnimation = new AlphaInAnimation();
         mFooterView = AdapterUtil.inflate(mContext, R.layout.item_footer, (ViewGroup) recyclerView.getParent());
-        mStartView = showStartView ? AdapterUtil.inflate(mContext, R.layout.item_empty, (ViewGroup) recyclerView.getParent()) : null;
+        initEmptyView();
     }
 
     @Override
@@ -78,8 +78,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             case TYPE_FOOTER_ITEM_VIEW:
                 viewHolder = ViewHolder.create(mFooterView);
                 break;
-            case TYPE_START_ITEM_VIEW:
-                viewHolder = ViewHolder.create(mStartView);
+            case TYPE_EMPTY_VIEW:
+                viewHolder = ViewHolder.create(mEmptyView);
                 break;
             default:
                 viewHolder = onCreateDefViewHolder(parent, viewType);
@@ -102,7 +102,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             case TYPE_COMMON_ITEM_VIEW:
                 convert((ViewHolder) holder, mData, position);
                 break;
-            case TYPE_START_ITEM_VIEW:
+            case TYPE_EMPTY_VIEW:
                 break;
             case TYPE_FOOTER_ITEM_VIEW:
                 break;
@@ -124,8 +124,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemViewType(int position) {
-        if (mData.isEmpty() && mStartView != null) {
-            return TYPE_START_ITEM_VIEW;
+        if (mData.isEmpty() && mEmptyView != null) {
+            return TYPE_EMPTY_VIEW;
         }
         if (isFooterView(position)) {
             return TYPE_FOOTER_ITEM_VIEW;
@@ -139,8 +139,8 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemCount() {
-        if (mData.isEmpty() && mStartView != null) {
-            return 1; // 数据为空，则显示“暂时没有数据”
+        if (mData.isEmpty() && mEmptyView != null) {
+            return 1; // 数据为空
         }
         return mData.size() + getFooterViewCount();
     }
@@ -174,7 +174,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
-        if (isFooterView(holder.getLayoutPosition()) || holder.getItemViewType() == TYPE_START_ITEM_VIEW) {
+        if (isFooterView(holder.getLayoutPosition()) || holder.getItemViewType() == TYPE_EMPTY_VIEW) {
             ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
 
             if (lp != null && lp instanceof StaggeredGridLayoutManager.LayoutParams) {
@@ -232,7 +232,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
             gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    if (isFooterView(position) || getItemViewType(0) == TYPE_START_ITEM_VIEW) {
+                    if (isFooterView(position) || getItemViewType(0) == TYPE_EMPTY_VIEW) {
                         return gridManager.getSpanCount();
                     }
                     return 1;
@@ -321,30 +321,30 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         return max;
     }
 
-    /**
-     * 如果当前的Activity的组合是Toolbar+TabLayout+RecyclerView，则满足item没有占满一屏幕时，toolbar禁止伸缩
-     *
-     * @param layoutManager
-     * @param toolbar
-     * @param appBarLayout
-     */
-    public void turnOffToolbarCollapse(RecyclerView.LayoutManager layoutManager, Toolbar toolbar, AppBarLayout appBarLayout) {
-        AppBarLayout.LayoutParams toolbarLayoutParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
-        CoordinatorLayout.LayoutParams appBarLayoutParams = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-        if (findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
-            //turn off scrolling
-            toolbarLayoutParams.setScrollFlags(0);
-            appBarLayoutParams.setBehavior(null);
-        } else {
-            // turn on scrolling
-            toolbarLayoutParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-                    | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-                    | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
-            appBarLayoutParams.setBehavior(new AppBarLayout.Behavior());
-        }
-        toolbar.setLayoutParams(toolbarLayoutParams);
-        appBarLayout.setLayoutParams(appBarLayoutParams);
-    }
+//    /**
+//     * 如果当前的Activity的组合是Toolbar+TabLayout+RecyclerView，则满足item没有占满一屏幕时，toolbar禁止伸缩
+//     *
+//     * @param layoutManager
+//     * @param toolbar
+//     * @param appBarLayout
+//     */
+//    public void turnOffToolbarCollapse(RecyclerView.LayoutManager layoutManager, Toolbar toolbar, AppBarLayout appBarLayout) {
+//        AppBarLayout.LayoutParams toolbarLayoutParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+//        CoordinatorLayout.LayoutParams appBarLayoutParams = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+//        if (findLastVisibleItemPosition(layoutManager) + 1 == getItemCount()) {
+//            //turn off scrolling
+//            toolbarLayoutParams.setScrollFlags(0);
+//            appBarLayoutParams.setBehavior(null);
+//        } else {
+//            // turn on scrolling
+//            toolbarLayoutParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+//                    | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+//                    | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
+//            appBarLayoutParams.setBehavior(new AppBarLayout.Behavior());
+//        }
+//        toolbar.setLayoutParams(toolbarLayoutParams);
+//        appBarLayout.setLayoutParams(appBarLayoutParams);
+//    }
 
     /**
      * 获取数据
@@ -438,61 +438,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     /**
-     * 当没有数据时,显示"暂无数据",并关闭加载控件
-     */
-    private void showEmptyViewNoData(int drawableRes, String stringRes) {
-        if (mStartView != null) {
-            final View viewProgress = mStartView.findViewById(R.id.progress);
-            ViewCompat.animate(viewProgress).alpha(0).start();
-            viewProgress.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    viewProgress.setVisibility(View.GONE);
-                }
-            }, 300);
-            final TextView textNoData = (TextView) mStartView.findViewById(R.id.tv_no_data);
-            textNoData.setVisibility(View.VISIBLE);
-            Drawable drawable = mContext.getResources().getDrawable(drawableRes);
-            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-            textNoData.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
-            textNoData.setCompoundDrawablePadding(16);
-            textNoData.setText(stringRes);
-            ViewCompat.animate(textNoData).alpha(1).start();
-            mStartView.findViewById(R.id.rl_empty).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClicks(View v) {
-                    if (mOnItemClickListener != null) {
-                        showEmptyViewProgress(mOnItemClickListener, viewProgress, textNoData);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
-     * 当无数据并且点击继续记载数据时，显示加载动画，并隐藏“暂无数据”
-     *
-     * @param onItemClickListener
-     * @param viewProgress
-     * @param textNoData
-     */
-    private void showEmptyViewProgress(final OnItemClickListener<T> onItemClickListener, final View viewProgress, final TextView textNoData) {
-        if (mStartView != null) {
-            mStartView.findViewById(R.id.rl_empty).setOnClickListener(null);
-            ViewCompat.animate(viewProgress).alpha(1).start();
-            ViewCompat.animate(textNoData).alpha(0).start();
-            textNoData.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    textNoData.setVisibility(View.GONE);
-                    viewProgress.setVisibility(View.VISIBLE);
-                    onItemClickListener.onItemEmptyClick();
-                }
-            }, 300);
-        }
-    }
-
-    /**
      * 当数据全部记载完成时，底部显示“无更多数据！”
      */
     public void showFooterNoMoreData() {
@@ -509,7 +454,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
                     viewProgress.setVisibility(View.GONE);
                 }
             }, 300);
-            TextView viewResult = (TextView) mFooterView.findViewById(R.id.tv_load_result);
+            TextView viewResult = mFooterView.findViewById(R.id.tv_load_result);
             viewResult.setOnClickListener(null);
             ViewCompat.animate(viewResult).alpha(1).start();
             viewResult.setText(stringRes);
@@ -517,53 +462,124 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     /**
-     * 当无网络等原因加载失败时
+     * 当无网络等原因加载更多失败时
      */
     public void showLoadFailed() {
-        showLoadFailed(R.drawable.empty, mContext.getResources().getString(R.string.no_data), mContext.getResources().getString(R.string.load_failed));
+        showLoadFailed(mContext.getResources().getString(R.string.load_failed));
     }
 
-    public void showLoadFailed(int noDataDrawableRes, String noDataStringRes, final String loadFailedStringRes) {
+    public void showLoadFailed(final String loadFailedStringRes) {
         // 有数据，列表footer加载失败
-        if (!mData.isEmpty()) {
-            if (mFooterView != null) {
-                isLoadMore = false;
-                final View viewProgress = mFooterView.findViewById(R.id.progress);
-                ViewCompat.animate(viewProgress).alpha(0).start();
-                final TextView viewResult = (TextView) mFooterView.findViewById(R.id.tv_load_result);
-                viewResult.setText(mContext.getString(R.string.load_failed_custom, loadFailedStringRes));
-                viewResult.setVisibility(View.VISIBLE);
-                ViewCompat.animate(viewResult).alpha(1).start();
-                viewProgress.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        viewProgress.setVisibility(View.GONE);
-
-                        viewResult.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClicks(View v) {
-                                isLoadMore = true;
-                                viewProgress.setVisibility(View.VISIBLE);
-                                ViewCompat.animate(viewProgress).alpha(1).start();
-                                ViewCompat.animate(viewResult).alpha(0).start();
-                                viewResult.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        viewResult.setVisibility(View.GONE);
-                                        scrollLoadMore();
-                                    }
-                                }, 300);
-                            }
-                        });
-                    }
-                }, 300);
-
-            }
+        if (mData.isEmpty()) {
+            return;
         }
-        // 无数据，全屏显示暂无数据
-        else {
-            showEmptyViewNoData(noDataDrawableRes, noDataStringRes);
-            isStartDataEmpty = true;
+        if (mFooterView != null) {
+            isLoadMore = false;
+            final View viewProgress = mFooterView.findViewById(R.id.progress);
+            ViewCompat.animate(viewProgress).alpha(0).start();
+            final TextView viewResult = mFooterView.findViewById(R.id.tv_load_result);
+            viewResult.setText(mContext.getString(R.string.load_failed_custom, loadFailedStringRes));
+            viewResult.setVisibility(View.VISIBLE);
+            ViewCompat.animate(viewResult).alpha(1).start();
+            viewProgress.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    viewProgress.setVisibility(View.GONE);
+
+                    viewResult.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClicks(View v) {
+                            isLoadMore = true;
+                            viewProgress.setVisibility(View.VISIBLE);
+                            ViewCompat.animate(viewProgress).alpha(1).start();
+                            ViewCompat.animate(viewResult).alpha(0).start();
+                            viewResult.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    viewResult.setVisibility(View.GONE);
+                                    scrollLoadMore();
+                                }
+                            }, 300);
+                        }
+                    });
+                }
+            }, 300);
+
+        }
+    }
+
+    public void initEmptyView() {
+        if (mEmptyView == null) {
+            mEmptyView = AdapterUtil.inflate(mContext, R.layout.item_empty, (ViewGroup) mRecyclerView.getParent());
+            mProgressView = mEmptyView.findViewById(R.id.progress);
+            mTvTip = mEmptyView.findViewById(R.id.tv_tip);
+            mTvTipSecond = mEmptyView.findViewById(R.id.tv_tip_second);
+        }
+        mProgressView.setVisibility(View.GONE);
+        mTvTip.setVisibility(View.GONE);
+        mTvTipSecond.setVisibility(View.GONE);
+    }
+
+    public void toggleEmptyView(boolean load) {
+        toggleEmptyView(load, mContext.getResources().getString(R.string.no_more_data),
+                mContext.getResources().getString(R.string.click_again),
+                R.drawable.empty);
+    }
+
+    public void toggleEmptyView(boolean load, String tip, String tipSecond, int drawableID) {
+        if (mEmptyView == null) {
+            initEmptyView();
+        }
+        if (TextUtils.isEmpty(tip)) {
+            tip = mContext.getResources().getString(R.string.no_more_data);
+        }
+        if (drawableID <= 0) {
+            drawableID = R.drawable.empty;
+        }
+        if (load) {
+            mProgressView.setVisibility(View.VISIBLE);
+            mProgressView.setAlpha(1);
+            ViewCompat.animate(mTvTip).alpha(0).start();
+            ViewCompat.animate(mTvTipSecond).alpha(0).start();
+            mEmptyView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (mTvTip != null && mTvTipSecond != null) {
+                        mTvTip.setVisibility(View.GONE);
+                        mTvTipSecond.setVisibility(View.GONE);
+                    }
+                }
+            }, 300);
+        } else {
+            Drawable drawable = mContext.getResources().getDrawable(drawableID);
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+            mTvTip.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
+            mTvTip.setCompoundDrawablePadding(16);
+            mTvTip.setText(tip);
+            mTvTipSecond.setText(tipSecond);
+            ViewCompat.animate(mProgressView).alpha(0).start();
+            mEmptyView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (mProgressView != null && mTvTip != null && mTvTipSecond != null) {
+                        mProgressView.setVisibility(View.GONE);
+                        mTvTip.setVisibility(View.VISIBLE);
+                        mTvTipSecond.setVisibility(View.VISIBLE);
+                        ViewCompat.animate(mTvTip).alpha(1).start();
+                        ViewCompat.animate(mTvTipSecond).alpha(1).start();
+                    }
+                }
+            }, 300);
+
+            View view = mEmptyView.findViewById(R.id.ll_tip);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mOnItemClickListener != null) {
+                        mOnItemClickListener.onItemEmptyClick();
+                    }
+                }
+            });
         }
     }
 

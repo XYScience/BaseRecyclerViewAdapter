@@ -1,26 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/rl_empty"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="16dp">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:id="@+id/fl_empty"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:padding="16dp">
 
     <ProgressBar
         android:id="@+id/progress"
         style="@style/Widget.AppCompat.ProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:alpha="1"/>
+        android:layout_gravity="center"
+        android:alpha="0"/>
 
-    <TextView
-        android:id="@+id/tv_no_data"
+    <LinearLayout
+        android:id="@+id/ll_tip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:alpha="0"
+        android:layout_gravity="center"
         android:gravity="center"
-        android:textColor="@color/textPrimary"
-        android:textSize="16sp"/>
+        android:orientation="vertical">
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/tv_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:alpha="1"
+            android:gravity="center"
+            android:textColor="@color/textPrimary"
+            android:textSize="14sp"
+            tools:text="没有更多数据"/>
+
+        <TextView
+            android:id="@+id/tv_tip_second"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="2dp"
+            android:alpha="1"
+            android:gravity="center"
+            android:textColor="@color/textSecond"
+            android:textSize="14sp"
+            tools:text="点我重试"/>
+
+    </LinearLayout>
+
+</FrameLayout>
